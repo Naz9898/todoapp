@@ -1,0 +1,18 @@
+services:
+  frontend:
+    command: tail -f /dev/null
+    build: 
+      context: ./frontend
+      dockerfile: dockerfile
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: dockerfile
+    ports:
+      - "3000:3000"
+  postgres:
+    environment:
+      POSTGRES_PASSWORD: "testpassword"
+    build: 
+      context: ./database
+      dockerfile: dockerfile
