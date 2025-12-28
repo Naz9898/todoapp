@@ -1,9 +1,10 @@
 services:
   frontend:
-    command: tail -f /dev/null
     build: 
       context: ./frontend
       dockerfile: dockerfile
+    ports:
+      - "5173:5173"
   backend:
     build: 
       context: ./backend
