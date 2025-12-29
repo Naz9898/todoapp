@@ -1,10 +1,8 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import Register from './components/Register'
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
     <>
@@ -13,12 +11,7 @@ function App() {
           <img src={viteLogo} className="logo" alt="Vite logo" />
         </a>
       </div>
-      <h1>ToDo</h1>
-      <div className="card">
-        <p>
-          Todo
-        </p>
-      </div>
+      <Register/>
     </>
   )
 }
