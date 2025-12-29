@@ -1,6 +1,9 @@
 -- init.sql
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(100)
+    username VARCHAR(100) NOT NULL,
+    email VARCHAR(250) UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    last_modified TIMESTAMPTZ DEFAULT NOW()
 );
-INSERT INTO users (name) VALUES ('Alice'), ('Bob');

@@ -1,15 +1,18 @@
 import { useState } from 'react'
 
 interface UserDataTemplate {
+  username: string,
   email: string,
   password: string,
 }
 
 function Register() {
+  const [inputUsername, setInputUsername] = useState<string>('')
   const [inputMail, setInputMail] = useState<string>('')
   const [inputPassword, setInputPassword] = useState<string>('')
   const handleRegister = async () => {
     const userData: UserDataTemplate = {
+      username: inputUsername,
       email: inputMail,
       password: inputPassword
     };
@@ -23,6 +26,12 @@ function Register() {
     <>
       <div className="card">
         <h1>Register</h1>
+        <input 
+          type="text" 
+          placeholder="Username" 
+          value={inputUsername} 
+          onChange={(e) => setInputUsername(e.target.value)} 
+        />
         <input 
           type="text" 
           placeholder="Mail" 
