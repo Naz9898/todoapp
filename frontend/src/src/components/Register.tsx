@@ -24,7 +24,7 @@ function Register() {
   const [inputMail, setInputMail] = useState<string>('')
   const [inputPassword, setInputPassword] = useState<string>('')
   const [error, setError] = useState('')
-  // Logic functions
+  // Input logic functions
   const handleMail = (e: React.ChangeEvent<HTMLInputElement>) => {
     const mail: string = e.target.value
     setInputMail(mail)
@@ -43,6 +43,7 @@ function Register() {
     else
       setError("Password must be at least 8 characters long and include at least two of the following: letters, numbers, or symbols.")
   }
+  // Register button
   const handleRegister = async () => {
     // Input Validation
     if (inputUsername.length === 0){
@@ -54,7 +55,7 @@ function Register() {
       return
     }
     if (!validatePassword(inputPassword)) {
-      setError("Invalid email format. Make sure it looks like address@example.com")
+      setError("Password must be at least 8 characters long and include at least two of the following: letters, numbers, or symbols.")
       return
     }
     setError("");
@@ -64,11 +65,19 @@ function Register() {
       email: inputMail,
       password: inputPassword
     }
-    await fetch('http://localhost:3000/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(userData),
-    })
+    try{
+      const response = await fetch('http://localhost:3000/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData),
+      })
+      // Add type
+      const data = await response.json();
+      setError(data.message);
+    } catch (error: any) {
+      console.error("Network error:", error);
+      setError("Could not connect to the server. Please check your connection.")
+    }
   }
   // JSX return
   return (
