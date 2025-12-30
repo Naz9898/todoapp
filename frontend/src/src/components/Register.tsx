@@ -71,9 +71,11 @@ function Register() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData),
       })
-      // Add type
       const data = await response.json();
       setError(data.message);
+      setInputUsername('')
+      setInputMail('')
+      setInputPassword('')
     } catch (error: any) {
       console.error("Network error:", error);
       setError("Could not connect to the server. Please check your connection.")
@@ -109,7 +111,6 @@ function Register() {
           type="text" 
           placeholder="No error" 
           value={error} 
-          onChange={(e) => setInputMail(e.target.value)} 
         />
       </div>
     </>

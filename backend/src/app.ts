@@ -14,6 +14,19 @@ app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
 
+const validatePassword = (password: string): boolean => {
+  if (password.length < 8) return false;
+  const hasLetters = /[a-zA-Z]/.test(password);
+  const hasNumbers = /[0-9]/.test(password);
+  const hasSymbols = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+  const count = [hasLetters, hasNumbers, hasSymbols].filter(Boolean).length;
+  return count >= 2;
+};
+
+const validateMail = (mail: string): boolean => {
+  return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(mail);
+};
+
 // Routes
 app.get('/', (req: Request, res: Response) => {
     res.send('The server is working!')
@@ -29,19 +42,6 @@ interface RegisterRequestBody {
 interface RegisterResponseBody {
   message: string;
 }
-
-const validatePassword = (password: string): boolean => {
-  if (password.length < 8) return false;
-  const hasLetters = /[a-zA-Z]/.test(password);
-  const hasNumbers = /[0-9]/.test(password);
-  const hasSymbols = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-  const count = [hasLetters, hasNumbers, hasSymbols].filter(Boolean).length;
-  return count >= 2;
-};
-
-const validateMail = (mail: string): boolean => {
-  return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(mail);
-};
 
 app.post('/register', async (req: Request<{}, RegisterResponseBody, RegisterRequestBody>, res: Response) => {
   if(debug){
@@ -95,4 +95,56 @@ app.post('/register', async (req: Request<{}, RegisterResponseBody, RegisterRequ
     return
   }
   
+})
+
+// Login
+interface LoginRequestBody {
+  email: string;
+  password: string;
+}
+
+interface LoginResponseBody {
+  message: string;
+}
+app.post('/login', async (req: Request<{}, LoginResponseBody, LoginRequestBody>, res: Response) => {
+  if(debug){
+    console.dir(req.body, { depth: null });
+  }
+  const { email, password } = req.body;
+  if (!email || !password) {
+      res.status(400).json({
+         message: "400 Bad Request: Invalid email or password." 
+      })
+  }
+  if (!validateMail(email)){
+    res.status(400).json({
+      message: "400 Bad Request: Invalid email or password.",
+    });
+    return
+  }
+  // Insert in Db
+  try{
+    const sql = `
+      SELECT * FROM USERS 
+      WHERE email = $1;
+    `;
+    const result = await query(sql, [email]);
+    if (result.rows.length === 0) {
+      return res.status(401).json({ message: "400 Bad Request: Invalid email or password." });
+    }
+    const user = result.rows[0];
+    const isMatch = await bcrypt.compare(password, user.password_hash);
+    if (!isMatch) {
+      return res.status(400).json({ message: "400 Bad Request: Invalid email or password." });
+    }
+    res.status(200).json({
+      message: "Login!",
+    })
+    return
+  } catch (error: any){
+    console.error("Database Error:", error)
+    res.status(500).json({ message: "Internal server error." })
+    return
+  }
+  return
 })
