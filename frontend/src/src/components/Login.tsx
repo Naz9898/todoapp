@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 interface UserDataTemplate {
   email: string,
@@ -9,12 +9,38 @@ const validateMail = (mail: string): boolean => {
   return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(mail);
 };
 
+const checkTokenValidity = async () => {
+  // Check if login token is present
+  const token = localStorage.getItem('token')
+  if(!token) return null
+  const response = await fetch('http://localhost:3000/me', {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+  const data = await response.json();
+  if(response.ok)
+    return data.user
+  return null
+}
+
 function Login() {
-  // State variables
+
   const [inputMail, setInputMail] = useState<string>('')
   const [inputPassword, setInputPassword] = useState<string>('')
-  const [error, setError] = useState('')
-  const [loginStatus, setLoginStatus] = useState('out')
+  const [error, setError] = useState<string>('')
+  const [loginStatus, setLoginStatus] = useState<boolean>(false)
+
+  useEffect(() => {
+      const verify = async () => {
+        const userInfo = await checkTokenValidity();
+        if (userInfo) {
+          setLoginStatus(true);
+        } 
+      };
+      verify();
+    }, 
+  []);
   
   // Register button
   const handleLogin = async () => {
@@ -35,11 +61,19 @@ function Login() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData),
       })
-      if(response.ok){
-        setLoginStatus("in")
-      }
       const data = await response.json();
-      setError(data.message);
+      // Login success
+      if(response.ok){
+        localStorage.setItem('token', data.token);
+        setLoginStatus(true)
+        setInputMail("")
+        setInputPassword("")
+        setError("")
+        return
+      }
+      // Login failed
+      else
+        setError(data.message)
     } catch (error: any) {
       console.error("Network error:", error);
       setError("Could not connect to the server. Please check your connection.")
@@ -70,11 +104,7 @@ function Login() {
           placeholder="No error" 
           value={error} 
         />
-        <input 
-          type="text" 
-          placeholder="Login status" 
-          value={loginStatus} 
-        />
+        <p>Stato sessione: {loginStatus ? "Logged in" : "Logged out"}</p>
       </div>
     </>
   )

@@ -6,6 +6,8 @@ services:
     ports:
       - "5173:5173"
   backend:
+    environment:
+        JWT_SECRET: "testsecret" # For dev only
     build: 
       context: ./backend
       dockerfile: dockerfile
@@ -13,7 +15,7 @@ services:
       - "3000:3000"
   postgres:
     environment:
-      POSTGRES_PASSWORD: "testpassword"
+      POSTGRES_PASSWORD: "testpassword" # For dev only
     build: 
       context: ./database
       dockerfile: dockerfile

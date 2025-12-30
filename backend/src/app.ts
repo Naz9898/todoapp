@@ -1,11 +1,17 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import { query } from './db';
 
 const debug: boolean = false;
 const port: number = 3000;
+const secret_key = process.env.JWT_SECRET;
 
+if (!secret_key) {
+  console.error(" JWT_SECRET is not defined!")
+  process.exit(1);
+}
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -25,6 +31,23 @@ const validatePassword = (password: string): boolean => {
 
 const validateMail = (mail: string): boolean => {
   return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(mail);
+};
+
+// Authentication
+export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
+  const authHeader = req.headers['authorization'];
+  //Format is "Bearer TOKEN", we need TOKEN
+  const token = authHeader && authHeader.split(' ')[1];
+  if (!token) {
+    return res.status(401).json({ message: "401 Access denied: token missing." });
+  }
+  try {
+    const decoded = jwt.verify(token, secret_key);
+    (req as any).user = decoded;
+    next(); // Set user
+  } catch (err) {
+    return res.status(403).json({ message: "403 Access denied: token expired or not valid." });
+  }
 };
 
 // Routes
@@ -105,6 +128,7 @@ interface LoginRequestBody {
 
 interface LoginResponseBody {
   message: string;
+  token: string;
 }
 app.post('/login', async (req: Request<{}, LoginResponseBody, LoginRequestBody>, res: Response) => {
   if(debug){
@@ -122,7 +146,7 @@ app.post('/login', async (req: Request<{}, LoginResponseBody, LoginRequestBody>,
     });
     return
   }
-  // Insert in Db
+  // Check credentials in db
   try{
     const sql = `
       SELECT * FROM USERS 
@@ -130,15 +154,26 @@ app.post('/login', async (req: Request<{}, LoginResponseBody, LoginRequestBody>,
     `;
     const result = await query(sql, [email]);
     if (result.rows.length === 0) {
-      return res.status(401).json({ message: "400 Bad Request: Invalid email or password." });
+      res.status(401).json({ message: "400 Bad Request: Invalid email or password." })
+      return
     }
     const user = result.rows[0];
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
-      return res.status(400).json({ message: "400 Bad Request: Invalid email or password." });
+      res.status(400).json({ message: "400 Bad Request: Invalid email or password." })
+      return
     }
+    const token = jwt.sign(
+      {
+        username: user.username,
+        email: user.email,
+      },
+      secret_key,
+      { expiresIn: '5m' }
+    )
     res.status(200).json({
       message: "Login!",
+      token: token
     })
     return
   } catch (error: any){
@@ -148,3 +183,13 @@ app.post('/login', async (req: Request<{}, LoginResponseBody, LoginRequestBody>,
   }
   return
 })
+
+//Check token validity
+app.get('/me', authenticateToken, (req, res) => {
+  const user = (req as any).user;
+  res.status(200).json({
+    message: "Valid session",
+    user: user
+  });
+});
+
