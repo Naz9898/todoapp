@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 
 interface UserDataTemplate {
   username: string,
@@ -6,22 +6,71 @@ interface UserDataTemplate {
   password: string,
 }
 
+const validatePassword = (password: string): boolean => {
+  if (password.length < 8) return false;
+  const hasLetters = /[a-zA-Z]/.test(password);
+  const hasNumbers = /[0-9]/.test(password);
+  const hasSymbols = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+  const count = [hasLetters, hasNumbers, hasSymbols].filter(Boolean).length;
+  return count >= 2;
+};
+const validateMail = (mail: string): boolean => {
+  return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(mail);
+};
+
 function Register() {
+  // State variables
   const [inputUsername, setInputUsername] = useState<string>('')
   const [inputMail, setInputMail] = useState<string>('')
   const [inputPassword, setInputPassword] = useState<string>('')
+  const [error, setError] = useState('')
+  // Logic functions
+  const handleMail = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const mail: string = e.target.value
+    setInputMail(mail)
+    validateMail(mail)
+    if (mail.length === 0 || validateMail(mail)) 
+      setError("")
+    else
+      setError("Invalid email format. Make sure it looks like address@example.com")
+  }
+  const handlePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const password: string = e.target.value
+    setInputPassword(password)
+    validatePassword(password)
+    if (password.length === 0 || validatePassword(password)) 
+      setError("")
+    else
+      setError("Password must be at least 8 characters long and include at least two of the following: letters, numbers, or symbols.")
+  }
   const handleRegister = async () => {
+    // Input Validation
+    if (inputUsername.length === 0){
+      setError("Invaliusername format. Cannot be empty.")
+      return
+    }
+    if (!validateMail(inputMail)){
+      setError("Invalid email format. Make sure it looks like address@example.com")
+      return
+    }
+    if (!validatePassword(inputPassword)) {
+      setError("Invalid email format. Make sure it looks like address@example.com")
+      return
+    }
+    setError("");
+    // Register api call
     const userData: UserDataTemplate = {
       username: inputUsername,
       email: inputMail,
       password: inputPassword
-    };
+    }
     await fetch('http://localhost:3000/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(userData),
-    });
+    })
   }
+  // JSX return
   return (
     <>
       <div className="card">
@@ -36,17 +85,23 @@ function Register() {
           type="text" 
           placeholder="Mail" 
           value={inputMail} 
-          onChange={(e) => setInputMail(e.target.value)} 
+          onChange={handleMail} 
         />
         <input 
           type="password" 
           placeholder="Password" 
           value={inputPassword} 
-          onChange={(e) => setInputPassword(e.target.value)} 
+          onChange={handlePassword} 
         />
         <button onClick={handleRegister}>
           Register
         </button>
+        <input 
+          type="text" 
+          placeholder="No error" 
+          value={error} 
+          onChange={(e) => setInputMail(e.target.value)} 
+        />
       </div>
     </>
   )
