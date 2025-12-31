@@ -13,7 +13,7 @@ CREATE TABLE todo (
     last_modified_at TIMESTAMPTZ DEFAULT NOW(),
     title VARCHAR(256) NOT NULL,
     content TEXT,
-    is_completed BOOLEAN,
+    is_completed BOOLEAN DEFAULT FALSE,
     deadline TIMESTAMPTZ,
     completed_at TIMESTAMPTZ,
 

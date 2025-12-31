@@ -101,8 +101,8 @@ app.post('/register', async (req: Request<{}, RegisterResponseBody, RegisterRequ
       RETURNING id, created_at, last_modified;
     `;
     const result = await query(sql, [username, email, hashedPassword]);
-    res.status(200).json({
-      message: "Registration completed!",
+    res.status(201).json({
+      message: "Registration completed",
     })
     return
   } catch (error: any){
@@ -165,6 +165,7 @@ app.post('/login', async (req: Request<{}, LoginResponseBody, LoginRequestBody>,
     }
     const token = jwt.sign(
       {
+        user_id: user.user_id,
         username: user.username,
         email: user.email,
       },
@@ -193,3 +194,46 @@ app.get('/me', authenticateToken, (req, res) => {
   });
 });
 
+
+// Todo
+interface TodoRequestBody {
+  title: string;
+  content: string;
+}
+
+interface TodoResponseBody {
+  message: string;
+}
+
+app.post('/todo', authenticateToken, async (req: Request<{}, TodoResponseBody, TodoRequestBody>, res: Response) => {
+  if(debug){
+    console.dir(req.body, { depth: null });
+  }
+  const { title, content } = req.body;
+  const user = (req as any).user;
+  // Input validation
+  if (!title || title.trim().length === 0){
+    res.status(400).json({
+      message: "400 Bad Request: Title cannot be empty",
+    });
+    return
+  }
+
+  // Insert in Db
+  try{
+    const sql = `
+      INSERT INTO todo (user_id, title, content) 
+      VALUES ($1, $2, $3) 
+      RETURNING todo_id, created_at, last_modified_at;
+    `;
+    const result = await query(sql, [user.user_id, title, content]);
+    res.status(201).json({
+      message: "Todo created",
+    })
+    return
+  } catch (error: any){
+    console.error("Database Error:", error)
+    res.status(500).json({ message: "Internal server error." })
+    return
+  }
+})

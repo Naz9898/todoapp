@@ -9,7 +9,11 @@ function TodoEdit() {
 
   // Register button
   const handleTodo = async () => {
-    setErrorMessage("");
+    if(inputTitle.length === 0){
+      setErrorMessage("Title cannot be empty.")
+      return
+    }
+    setErrorMessage("")
     // Register api call
     try{
       const response = await fetch('http://localhost:3000/todo', {
