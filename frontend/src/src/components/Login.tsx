@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useAuth } from '../context/AuthContext';
 
 interface UserDataTemplate {
   email: string,
@@ -9,38 +10,12 @@ const validateMail = (mail: string): boolean => {
   return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(mail);
 };
 
-const checkTokenValidity = async () => {
-  // Check if login token is present
-  const token = localStorage.getItem('token')
-  if(!token) return null
-  const response = await fetch('http://localhost:3000/me', {
-    headers: {
-      'Authorization': `Bearer ${token}`
-    }
-  });
-  const data = await response.json();
-  if(response.ok)
-    return data.user
-  return null
-}
 
 function Login() {
-
+  const { user, login } = useAuth()
   const [inputMail, setInputMail] = useState<string>('')
   const [inputPassword, setInputPassword] = useState<string>('')
   const [errorMessage, setErrorMessage] = useState<string>('')
-  const [loginStatus, setLoginStatus] = useState<boolean>(false)
-
-  useEffect(() => {
-      const verify = async () => {
-        const userInfo = await checkTokenValidity();
-        if (userInfo) {
-          setLoginStatus(true);
-        } 
-      };
-      verify();
-    }, 
-  []);
   
   // Register button
   const handleLogin = async () => {
@@ -65,7 +40,7 @@ function Login() {
       // Login success
       if(response.ok){
         localStorage.setItem('token', data.token);
-        setLoginStatus(true)
+        login(data.user)
         setInputMail("")
         setInputPassword("")
         setErrorMessage("")
@@ -100,7 +75,7 @@ function Login() {
           Login
         </button>
         <p>{errorMessage}</p>
-        <p>{loginStatus ? "Logged in" : "Logged out"}</p>
+        <p>{user === null ? "Logged out" : "Logged in"}</p>        
       </div>
     </>
   )
