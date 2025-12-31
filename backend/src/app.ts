@@ -169,7 +169,7 @@ app.post('/login', async (req: Request<{}, LoginResponseBody, LoginRequestBody>,
         email: user.email,
       },
       secret_key,
-      { expiresIn: '5m' }
+      { expiresIn: '24h' }
     )
     res.status(200).json({
       message: "Login!",
