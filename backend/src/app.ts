@@ -98,7 +98,7 @@ app.post('/register', async (req: Request<{}, RegisterResponseBody, RegisterRequ
     const sql = `
       INSERT INTO users (username, email, password_hash) 
       VALUES ($1, $2, $3) 
-      RETURNING id, created_at, last_modified;
+      RETURNING user_id, created_at, last_modified_at;
     `;
     const result = await query(sql, [username, email, hashedPassword]);
     res.status(201).json({
@@ -121,14 +121,21 @@ app.post('/register', async (req: Request<{}, RegisterResponseBody, RegisterRequ
 })
 
 // Login
+interface User {
+  user_id: string
+  email: string
+  username: string
+}
+
 interface LoginRequestBody {
-  email: string;
-  password: string;
+  email: string
+  password: string
 }
 
 interface LoginResponseBody {
-  message: string;
-  token: string;
+  message: string
+  token: string
+  user: User
 }
 app.post('/login', async (req: Request<{}, LoginResponseBody, LoginRequestBody>, res: Response) => {
   if(debug){
@@ -157,24 +164,26 @@ app.post('/login', async (req: Request<{}, LoginResponseBody, LoginRequestBody>,
       res.status(401).json({ message: "400 Bad Request: Invalid email or password." })
       return
     }
-    const user = result.rows[0];
-    const isMatch = await bcrypt.compare(password, user.password_hash);
+    const user_row = result.rows[0];
+    const user = {
+        user_id: user_row.user_id,
+        username: user_row.username,
+        email: user_row.email,
+    }
+    const isMatch = await bcrypt.compare(password, user_row.password_hash);
     if (!isMatch) {
       res.status(400).json({ message: "400 Bad Request: Invalid email or password." })
       return
     }
     const token = jwt.sign(
-      {
-        user_id: user.user_id,
-        username: user.username,
-        email: user.email,
-      },
+      user,
       secret_key,
       { expiresIn: '24h' }
     )
     res.status(200).json({
       message: "Login!",
-      token: token
+      token: token,
+      user: user
     })
     return
   } catch (error: any){
