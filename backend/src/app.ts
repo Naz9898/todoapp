@@ -221,6 +221,7 @@ interface TodoRequestBody {
   title: string
   content: string
   deadline: string
+  is_completed: boolean
 }
 
 interface TodoResponseBody {
@@ -232,7 +233,7 @@ app.post('/todo', authenticateToken, async (req: Request<{}, TodoResponseBody, T
   if(debug){
     console.dir(req.body, { depth: null });
   }
-  const { title, content, deadline } = req.body;
+  const { title, content, deadline, is_completed } = req.body;
   const user = (req as any).user;
   // Input validation
   if (!title || title.trim().length === 0){
@@ -251,11 +252,11 @@ app.post('/todo', authenticateToken, async (req: Request<{}, TodoResponseBody, T
   // Insert in Db
   try{
     const sql = `
-      INSERT INTO todo (user_id, title, content, deadline) 
-      VALUES ($1, $2, $3, $4) 
+      INSERT INTO todo (user_id, title, content, deadline, is_completed) 
+      VALUES ($1, $2, $3, $4, $5) 
       RETURNING *;
     `;
-    const result = await query(sql, [user.user_id, title, content, deadline]);
+    const result = await query(sql, [user.user_id, title, content, deadline, is_completed]);
     const row = result.rows[0];
     const todo: Todo = {
         todo_id: row.todo_id,
@@ -314,3 +315,39 @@ app.get('/todo', authenticateToken, async (req: Request<{}, TodoResponseBody, To
     return
   }
 })
+
+app.put('/todo', authenticateToken, async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  const { todo_id, title, content, deadline, is_completed } = req.body;
+
+  try {
+    const sql = `
+      UPDATE todo 
+      SET title = $1, content = $2, deadline = $3, is_completed = $4, last_modified_at = NOW()
+      WHERE todo_id = $5 AND user_id = $6
+      RETURNING *;
+    `;
+
+    const result = await query(sql, [
+      title, 
+      content, 
+      deadline, 
+      is_completed, 
+      todo_id, 
+      user.user_id
+    ]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Todo not found." });
+    }
+
+    res.status(200).json({
+      message: "Todo updated.",
+      todo: result.rows[0]
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});

@@ -12,10 +12,12 @@ interface Todo{
   completed_at: string | null
 }
 
-interface TodoCreate{
+interface TodoCreateEdit{
+  todo_id: number | null
   title: string
   content: string
   deadline: string
+  is_completed: boolean
 }
 
 const formatDateTime = (dateString: string | null) => {
@@ -40,6 +42,7 @@ function TodoList() {
   const [inputTitle, setInputTitle] = useState<string>('')
   const [inputContent, setInputContent] = useState<string>('')
   const [inputDeadline, setInputDeadline] = useState<string>('');
+  const [inputIsCompleted, setInputIsCompleted] = useState<boolean>(false);
   // Debug
   const [errorMessage, setErrorMessage] = useState<string>('') 
   
@@ -53,42 +56,45 @@ function TodoList() {
     )
   }
   
-    const getTodos = async () => {
-      try{
-        const token = localStorage.getItem('token');
-        if (!token) {
-          setErrorMessage("You must login to add todos.");
-          return;
-        }
-        const response = await fetch('http://localhost:3000/todo', {
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        })
-        const data = await response.json();
-        setTodos(data.todos);
-      } catch (error: any) {
-        console.error("Network error:", error);
-        setErrorMessage("Could not connect to the server. Please check your connection.")
+  const getTodos = async () => {
+    try{
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setErrorMessage("You must login to add todos.");
+        return;
       }
+      const response = await fetch('http://localhost:3000/todo', {
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      const data = await response.json();
+      setTodos(data.todos);
+    } catch (error: any) {
+      console.error("Network error:", error);
+      setErrorMessage("Could not connect to the server. Please check your connection.")
     }
+  }
 
   useEffect( () => {
     getTodos()
   }, [])
+
 // Logic function
   const handleSelectedTodo = (todo: Todo | null) => {
     if(todo === null){
       setInputTitle("")
       setInputContent("")
       setInputDeadline("")
+      setInputIsCompleted(false)
       setSelectedTodo(null)
     }
     else{
       setInputTitle(todo.title)
       setInputContent(todo.content)
       setInputDeadline(formatDateTime(todo.deadline))
+      setInputIsCompleted(todo.is_completed);
       setSelectedTodo(todo)
     }
   }
@@ -107,14 +113,16 @@ function TodoList() {
     }
     setErrorMessage("");
     // Register api call
-    const todoData: TodoCreate = {
+    const todoData: TodoCreateEdit = {
+      todo_id: selectedTodo===null?null:selectedTodo.todo_id,
       title: inputTitle,
       content: inputContent,
-      deadline: inputDeadline
+      deadline: inputDeadline,
+      is_completed: inputIsCompleted
     }
     try{
       const response = await fetch('http://localhost:3000/todo', {
-        method: 'POST',
+        method: selectedTodo===null?'POST':'PUT',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -126,6 +134,7 @@ function TodoList() {
       setInputTitle('')
       setInputContent('')
       setInputDeadline('')
+      setInputIsCompleted(false)
       getTodos()
     } catch (error: any) {
       console.error("Network error:", error);
@@ -160,6 +169,14 @@ function TodoList() {
           value={inputDeadline}
           onChange={(e) => setInputDeadline(e.target.value)}
         />
+        <label>
+          <input 
+            type="checkbox" 
+            checked={inputIsCompleted} 
+            onChange={(e) => setInputIsCompleted(e.target.checked)} 
+          />
+          Completed
+        </label>
         <button onClick={handleAddTodo}>
           {selectedTodo === null ? "Add todo" : "Edit todo"}
         </button>
