@@ -12,13 +12,14 @@ const validateMail = (mail: string): boolean => {
 
 
 function Login() {
-  const { user, login } = useAuth()
+  const { user, login, logout } = useAuth()
   const [inputMail, setInputMail] = useState<string>('')
   const [inputPassword, setInputPassword] = useState<string>('')
   const [errorMessage, setErrorMessage] = useState<string>('')
   
   // Register button
   const handleLogin = async () => {
+    if( user ) return
     // Input Validation
     if (!validateMail(inputMail) || inputPassword.length === 0){
       setErrorMessage("Mail or password do not match.")
@@ -54,6 +55,14 @@ function Login() {
       setErrorMessage("Could not connect to the server. Please check your connection.")
     }
   }
+  const handleLogout = async () => {
+    // Input Validation
+    if (user){
+      logout()
+      setErrorMessage("")
+    }
+    return
+  }
   // JSX return
   return (
     <>
@@ -73,6 +82,9 @@ function Login() {
         />
         <button onClick={handleLogin}>
           Login
+        </button>
+        <button onClick={handleLogout}>
+          Logout
         </button>
         <p>{errorMessage}</p>
         <p>{user === null ? "Logged out" : "Logged in"}</p>        
