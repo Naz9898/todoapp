@@ -2,7 +2,6 @@ import viteLogo from '/vite.svg'
 import './App.css'
 import Register from './components/Register'
 import Login from './components/Login'
-import TodoEdit from './components/TodoEdit'
 import TodoList from './components/TodoList'
 
 function App() {
@@ -17,7 +16,6 @@ function App() {
       <Register/>
       <Login/>
       <TodoList/>
-      <TodoEdit/>
     </>
   )
 }
