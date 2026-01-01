@@ -37,9 +37,29 @@ function TodoList() {
     )
   }
   
-  //useEffect(() => {
-  //  },
-  //)
+  useEffect( () => {
+    const getTodos = async () => {
+      try{
+        const token = localStorage.getItem('token');
+        if (!token) {
+          setErrorMessage("You must login to add todos.");
+          return;
+        }
+        const response = await fetch('http://localhost:3000/todo', {
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        const data = await response.json();
+        setTodos(data.todos);
+      } catch (error: any) {
+        console.error("Network error:", error);
+        setErrorMessage("Could not connect to the server. Please check your connection.")
+      }
+    }
+    getTodos()
+  }, [])
 // Logic function
   const handleSelectedTodo = (todo: Todo | null) => {
     if(todo === null){
@@ -95,7 +115,7 @@ function TodoList() {
       <div className="card">
         <h1>My todo</h1>
         <ul>
-          <li onClick={() => handleSelectedTodo(null)}> Add item </li>
+          <button onClick={() => handleSelectedTodo(null)}> Add item </button>
           { todos.map( (item) => ( <TodoItem key={item.todo_id} todo={item}/> ) )}
         </ul>
       </div>

@@ -205,6 +205,18 @@ app.get('/me', authenticateToken, (req, res) => {
 
 
 // Todo
+interface Todo{
+  todo_id: number
+  user_id: number
+  created_at: string
+  last_modified_at: string
+  title: string
+  content: string 
+  is_completed: boolean
+  deadline: string | null
+  completed_at: string | null
+}
+
 interface TodoRequestBody {
   title: string;
   content: string;
@@ -212,6 +224,7 @@ interface TodoRequestBody {
 
 interface TodoResponseBody {
   message: string;
+  todo: Todo
 }
 
 app.post('/todo', authenticateToken, async (req: Request<{}, TodoResponseBody, TodoRequestBody>, res: Response) => {
@@ -233,14 +246,62 @@ app.post('/todo', authenticateToken, async (req: Request<{}, TodoResponseBody, T
     const sql = `
       INSERT INTO todo (user_id, title, content) 
       VALUES ($1, $2, $3) 
-      RETURNING todo_id, created_at, last_modified_at;
+      RETURNING *;
     `;
     const result = await query(sql, [user.user_id, title, content]);
+    const row = result.rows[0];
+    const todo: Todo = {
+        todo_id: row.todo_id,
+        user_id: row.user_id,
+        created_at: row.created_at,
+        last_modified_at: row.last_modified_at,
+        title: row.title,
+        content: row.content,
+        is_completed: row.is_completed, // Utile se il DB usa 0/1 per i booleani
+        deadline: row.deadline || null,
+        completed_at: row.completed_at || null
+    }
     res.status(201).json({
       message: "Todo created",
+      todo: todo
     })
     return
   } catch (error: any){
+    console.error("Database Error:", error)
+    res.status(500).json({ message: "Internal server error." })
+    return
+  }
+})
+
+app.get('/todo', authenticateToken, async (req: Request<{}, TodoResponseBody, TodoRequestBody>, res: Response) => {
+  if(debug){
+    console.dir(req.body, { depth: null });
+  }
+  const user = (req as any).user;
+  const { status } = req.query
+  try{
+    const sql = `
+      SELECT * FROM todo 
+      WHERE user_id = $1 
+      ORDER BY deadline ASC;
+    `;
+    const result = await query(sql, [user.user_id]);
+    const todos: Todo[] = result.rows.map((row: any) => ({
+        todo_id: row.todo_id,
+        user_id: row.user_id,
+        created_at: row.created_at,
+        last_modified_at: row.last_modified_at,
+        title: row.title,
+        content: row.content,
+        is_completed: row.is_completed,
+        deadline: row.deadline || null,
+        completed_at: row.completed_at || null
+    }));
+    res.status(200).json({
+      todos: todos
+    })
+    return
+  }catch (error: any){
     console.error("Database Error:", error)
     res.status(500).json({ message: "Internal server error." })
     return
