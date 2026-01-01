@@ -6,38 +6,96 @@ interface Todo{
   created_at: string
   last_modified_at: string
   title: string
-  content: string
+  content: string 
   is_completed: boolean
   deadline: string | null
   completed_at: string | null
 }
 
+interface TodoCreate{
+  title: string
+  content: string
+}
+
 function TodoList() {
-  // State variables
+  // List State variables
   const [todos, setTodos] = useState<Todo[]>([])
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null) 
-  const [errorMessage, setErrorMessage] = useState<string>("") 
+  // Add/Edit todo state variables
+  const [inputTitle, setInputTitle] = useState<string>('')
+  const [inputContent, setInputContent] = useState<string>('')
+  // Debug
+  const [errorMessage, setErrorMessage] = useState<string>('') 
+  
   const TodoItem = ({todo}: {todo: Todo}) => {
     return (
       <>
-        <li style={{ textDecoration: todo.is_completed ? 'line-through' : 'none' }} onClick={() => setSelectedTodo(todo)} >
+        <li style={{ textDecoration: todo.is_completed ? 'line-through' : 'none' }} onClick={() => handleSelectedTodo(todo)} >
           {todo.title}
         </li>
       </>
     )
   }
   
-  useEffect(() => {
-
-  },
-  // Logic function
-  )
+  //useEffect(() => {
+  //  },
+  //)
+// Logic function
+  const handleSelectedTodo = (todo: Todo | null) => {
+    if(todo === null){
+      setInputTitle("")
+      setInputContent("")
+      setSelectedTodo(null)
+    }
+    else{
+      setInputTitle(todo.title)
+      setInputContent(todo.content)
+      setSelectedTodo(todo)
+    }
+  }
+    
+  // Add todo button
+  const handleAddTodo = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setErrorMessage("You must login to add todos.");
+      return;
+    }
+    // Input Validation
+    if (inputTitle.length === 0){
+      setErrorMessage("Invalid title. Cannot be empty.")
+      return
+    }
+    setErrorMessage("");
+    // Register api call
+    const todoData: TodoCreate = {
+      title: inputTitle,
+      content: inputContent,
+    }
+    try{
+      const response = await fetch('http://localhost:3000/todo', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(todoData),
+      })
+      const data = await response.json();
+      setErrorMessage(data.message);
+      setInputTitle('')
+      setInputContent('')
+    } catch (error: any) {
+      console.error("Network error:", error);
+      setErrorMessage("Could not connect to the server. Please check your connection.")
+    }
+  }
   return (
     <>
       <div className="card">
         <h1>My todo</h1>
         <ul>
-          <li onClick={() => setSelectedTodo(null)}> Add item </li>
+          <li onClick={() => handleSelectedTodo(null)}> Add item </li>
           { todos.map( (item) => ( <TodoItem key={item.todo_id} todo={item}/> ) )}
         </ul>
       </div>
@@ -46,14 +104,16 @@ function TodoList() {
         <input 
           type="text" 
           placeholder="Title" 
-          value={selectedTodo === null ? "" : selectedTodo.title} 
+          value={inputTitle} 
+          onChange={(e) => setInputTitle(e.target.value)}
         />
         <input 
           type="text" 
           placeholder="Content" 
-          value={selectedTodo === null ? "" : selectedTodo.content} 
+          value={inputContent}
+          onChange={(e) => setInputContent(e.target.value)}
         />
-        <button >
+        <button onClick={handleAddTodo}>
           {selectedTodo === null ? "Add todo" : "Edit todo"}
         </button>
         <p>{errorMessage}</p>
