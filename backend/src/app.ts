@@ -213,13 +213,14 @@ interface Todo{
   title: string
   content: string 
   is_completed: boolean
-  deadline: string | null
+  deadline: string
   completed_at: string | null
 }
 
 interface TodoRequestBody {
-  title: string;
-  content: string;
+  title: string
+  content: string
+  deadline: string
 }
 
 interface TodoResponseBody {
@@ -231,7 +232,7 @@ app.post('/todo', authenticateToken, async (req: Request<{}, TodoResponseBody, T
   if(debug){
     console.dir(req.body, { depth: null });
   }
-  const { title, content } = req.body;
+  const { title, content, deadline } = req.body;
   const user = (req as any).user;
   // Input validation
   if (!title || title.trim().length === 0){
@@ -240,15 +241,21 @@ app.post('/todo', authenticateToken, async (req: Request<{}, TodoResponseBody, T
     });
     return
   }
+  if (!deadline || deadline.length === 0){
+    res.status(400).json({
+      message: "400 Bad Request: Deadline cannot be empty",
+    });
+    return
+  }
 
   // Insert in Db
   try{
     const sql = `
-      INSERT INTO todo (user_id, title, content) 
-      VALUES ($1, $2, $3) 
+      INSERT INTO todo (user_id, title, content, deadline) 
+      VALUES ($1, $2, $3, $4) 
       RETURNING *;
     `;
-    const result = await query(sql, [user.user_id, title, content]);
+    const result = await query(sql, [user.user_id, title, content, deadline]);
     const row = result.rows[0];
     const todo: Todo = {
         todo_id: row.todo_id,
@@ -257,8 +264,8 @@ app.post('/todo', authenticateToken, async (req: Request<{}, TodoResponseBody, T
         last_modified_at: row.last_modified_at,
         title: row.title,
         content: row.content,
-        is_completed: row.is_completed, // Utile se il DB usa 0/1 per i booleani
-        deadline: row.deadline || null,
+        is_completed: row.is_completed, 
+        deadline: row.deadline,
         completed_at: row.completed_at || null
     }
     res.status(201).json({
@@ -294,7 +301,7 @@ app.get('/todo', authenticateToken, async (req: Request<{}, TodoResponseBody, To
         title: row.title,
         content: row.content,
         is_completed: row.is_completed,
-        deadline: row.deadline || null,
+        deadline: row.deadline,
         completed_at: row.completed_at || null
     }));
     res.status(200).json({

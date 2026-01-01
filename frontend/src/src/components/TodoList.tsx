@@ -8,14 +8,29 @@ interface Todo{
   title: string
   content: string 
   is_completed: boolean
-  deadline: string | null
+  deadline: string
   completed_at: string | null
 }
 
 interface TodoCreate{
   title: string
   content: string
+  deadline: string
 }
+
+const formatDateTime = (dateString: string | null) => {
+  if (!dateString) return "";
+  
+  const date = new Date(dateString);
+  
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
 
 function TodoList() {
   // List State variables
@@ -24,6 +39,7 @@ function TodoList() {
   // Add/Edit todo state variables
   const [inputTitle, setInputTitle] = useState<string>('')
   const [inputContent, setInputContent] = useState<string>('')
+  const [inputDeadline, setInputDeadline] = useState<string>('');
   // Debug
   const [errorMessage, setErrorMessage] = useState<string>('') 
   
@@ -37,7 +53,6 @@ function TodoList() {
     )
   }
   
-  useEffect( () => {
     const getTodos = async () => {
       try{
         const token = localStorage.getItem('token');
@@ -58,6 +73,8 @@ function TodoList() {
         setErrorMessage("Could not connect to the server. Please check your connection.")
       }
     }
+
+  useEffect( () => {
     getTodos()
   }, [])
 // Logic function
@@ -65,11 +82,13 @@ function TodoList() {
     if(todo === null){
       setInputTitle("")
       setInputContent("")
+      setInputDeadline("")
       setSelectedTodo(null)
     }
     else{
       setInputTitle(todo.title)
       setInputContent(todo.content)
+      setInputDeadline(formatDateTime(todo.deadline))
       setSelectedTodo(todo)
     }
   }
@@ -91,6 +110,7 @@ function TodoList() {
     const todoData: TodoCreate = {
       title: inputTitle,
       content: inputContent,
+      deadline: inputDeadline
     }
     try{
       const response = await fetch('http://localhost:3000/todo', {
@@ -105,6 +125,8 @@ function TodoList() {
       setErrorMessage(data.message);
       setInputTitle('')
       setInputContent('')
+      setInputDeadline('')
+      getTodos()
     } catch (error: any) {
       console.error("Network error:", error);
       setErrorMessage("Could not connect to the server. Please check your connection.")
@@ -132,6 +154,11 @@ function TodoList() {
           placeholder="Content" 
           value={inputContent}
           onChange={(e) => setInputContent(e.target.value)}
+        />
+        <input 
+          type="datetime-local" 
+          value={inputDeadline}
+          onChange={(e) => setInputDeadline(e.target.value)}
         />
         <button onClick={handleAddTodo}>
           {selectedTodo === null ? "Add todo" : "Edit todo"}

@@ -14,7 +14,7 @@ CREATE TABLE todo (
     title VARCHAR(256) NOT NULL,
     content TEXT,
     is_completed BOOLEAN DEFAULT FALSE,
-    deadline TIMESTAMPTZ,
+    deadline TIMESTAMPTZ NOT NULL,
     completed_at TIMESTAMPTZ,
 
     CONSTRAINT fk_user
