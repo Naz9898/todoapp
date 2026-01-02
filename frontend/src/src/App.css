@@ -1,0 +1,202 @@
+/* Layout Generale */
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Header Pulito */
+.main-nav {
+  height: 80px;
+  display: flex;
+  justify-content: space-between; /* Fondamentale per separare logo e user info */
+  align-items: center;
+  padding: 0 40px; /* Spazio ai lati */
+  background-color: white;
+  border-bottom: 1px solid #e2e8f0;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  box-sizing: border-box; /* Evita che il padding sballi la larghezza */
+  z-index: 1000;
+}
+
+.nav-logo {
+  height: 50px; /* Regola l'altezza del logo come preferisci */
+  width: auto;
+  mix-blend-mode: multiply;
+}
+
+/* Correzione Container per l'Header Fisso */
+.auth-container {
+  margin-top: 80px; /* Sposta le card sotto l'header */
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  background-color: #f0f2f5;
+}
+
+@media (max-width: 800px) {
+  .auth-container {
+    flex-direction: column;
+    padding: 20px;
+  }
+}
+
+.auth-card {
+  flex: 0 1 400px;       /* Non farle allargare troppo */
+  background: white;
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 400px;
+  text-align: left; /* Allineamento testo a sinistra come nell'immagine */
+}
+
+.auth-card h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+  color: #000;
+}
+
+.auth-card label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.auth-card input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 1.2rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  font-size: 1rem;
+}
+
+.auth-card button {
+  width: 100%;
+  padding: 14px;
+  background-color: #1a88c5; /* Il blu della tua immagine */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background 0.3s;
+}
+
+.auth-card button:hover {
+  background-color: #156d9e;
+}
+
+.auth-footer {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.auth-footer span {
+  color: #1a88c5;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.forgot-password {
+  display: block;
+  color: #1a88c5;
+  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
+  text-decoration: none;
+}
+
+.user-nav-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background-color: #f8fafc;
+  padding: 8px 16px;
+  border-radius: 50px; /* Effetto pillola molto moderno */
+  border: 1px solid #e2e8f0;
+}
+
+.user-email {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.logout-btn-small {
+  background-color: #1a88c5;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.logout-btn-small:hover {
+  background-color: #e53e3e; /* Diventa rosso al passaggio per indicare l'uscita */
+}
+
+
+/* Container principale della dashboard */
+.dashboard {
+  margin-top: 100px;
+  display: flex;
+  height: calc(100vh - 80px); /* Altezza totale meno l'header */
+  width: 100%;
+  overflow: hidden; /* Impedisce lo scroll dell'intera pagina */
+}
+
+/* Sidebar della lista (Sinistra) */
+.todo-sidebar {
+  width: 350px; /* Larghezza fissa per la lista */
+  min-width: 300px;
+  background-color: white;
+  border-right: 1px solid #e2e8f0;
+  overflow-y: auto; /* Abilita lo scroll solo qui */
+  padding: 20px;
+  height: 100%;
+}
+
+/* Area di lavoro (Centro) */
+.todo-workspace {
+  flex: 1; /* Prende tutto lo spazio rimanente */
+  background-color: #f0f2f5; /* Grigio chiaro per far risaltare la card */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+/* Card centrale grande */
+.workspace-card {
+  background-color: white;
+  width: 100%;
+  max-width: 700px; /* Larghezza massima della card di editing */
+  min-height: 400px;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+}
+
+/* Scrollbar personalizzata per la sidebar (opzionale, più bella) */
+.todo-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+.todo-sidebar::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 10px;
+}

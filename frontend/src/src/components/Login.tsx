@@ -66,14 +66,16 @@ function Login() {
   // JSX return
   return (
     <>
-      <div className="card">
-        <h1>Login</h1>
+      <div className="auth-card">
+        <h2>Login</h2>
+        <label>Email:</label>
         <input 
           type="text" 
           placeholder="Mail" 
           value={inputMail} 
           onChange={(e) => setInputMail(e.target.value)} 
         />
+        <label>Password</label>
         <input 
           type="password" 
           placeholder="Password" 
@@ -83,11 +85,7 @@ function Login() {
         <button onClick={handleLogin}>
           Login
         </button>
-        <button onClick={handleLogout}>
-          Logout
-        </button>
         <p>{errorMessage}</p>
-        <p>{user === null ? "Logged out" : "Logged in"}</p>        
       </div>
     </>
   )

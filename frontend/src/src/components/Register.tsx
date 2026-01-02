@@ -84,30 +84,32 @@ function Register() {
   // JSX return
   return (
     <>
-      <div className="card">
-        <h1>Register</h1>
+      <div className="auth-card">
+        <h2>Register</h2>
+        <label>Username</label>
         <input 
           type="text" 
           placeholder="Username" 
           value={inputUsername} 
           onChange={(e) => setInputUsername(e.target.value)} 
         />
+        <label>Email</label>
         <input 
           type="text" 
-          placeholder="Mail" 
+          placeholder="email@example.com" 
           value={inputMail} 
           onChange={handleMail} 
         />
         <input 
           type="password" 
-          placeholder="Password" 
+          placeholder="password" 
           value={inputPassword} 
           onChange={handlePassword} 
         />
         <button onClick={handleRegister}>
           Register
         </button>
-        <p>{errorMessage}</p>
+        {errorMessage && <p className="error-message">{errorMessage}</p>}
       </div>
     </>
   )

@@ -49,7 +49,11 @@ function TodoList() {
   const TodoItem = ({todo}: {todo: Todo}) => {
     return (
       <>
-        <li style={{ textDecoration: todo.is_completed ? 'line-through' : 'none' }} onClick={() => handleSelectedTodo(todo)} >
+        <li 
+          className={`todo-card ${todo.is_completed ? 'completed' : 'pending'}`}
+          style={{ textDecoration: todo.is_completed ? 'line-through' : 'none' }} 
+          onClick={() => handleSelectedTodo(todo)} 
+        >
           {todo.title}
         </li>
       </>
