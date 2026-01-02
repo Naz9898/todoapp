@@ -156,28 +156,34 @@ html, body, #root {
   text-decoration: underline;
 }
 
-.forgot-password {
-  display: block;
-  color: #1a88c5;
-  font-size: 0.85rem;
-  margin-bottom: 1.5rem;
-  text-decoration: none;
-}
-
 .user-nav-card {
   display: flex;
   align-items: center;
   gap: 15px;
   background-color: #f8fafc;
   padding: 8px 16px;
-  border-radius: 50px; /* Effetto pillola molto moderno */
+  border-radius: 6px; /* Bordi meno rotondi */
   border: 1px solid #e2e8f0;
 }
 
-.user-email {
+/* Colonna Testo (Username sopra, Email sotto) */
+.user-info-text {
+  display: flex;
+  flex-direction: column; /* Mette gli elementi in verticale */
+  align-items: flex-start;
+  line-height: 1.2;
+}
+
+.user-name {
   font-size: 0.9rem;
-  font-weight: 600;
+  font-weight: 700; /* Username principale e grassetto */
   color: #1a1a1a;
+}
+
+.user-email {
+  font-size: 0.75rem; /* Email più piccola */
+  font-weight: 400;
+  color: #64748b; /* Meno evidente (grigio) */
 }
 
 .logout-btn-small {
@@ -185,7 +191,7 @@ html, body, #root {
   color: white;
   border: none;
   padding: 6px 12px;
-  border-radius: 20px;
+  border-radius: 5px;
   font-size: 0.8rem;
   cursor: pointer;
   transition: background 0.2s;

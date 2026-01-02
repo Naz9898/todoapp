@@ -16,7 +16,10 @@ function App() {
         </div>
         {user && (
           <div className="user-nav-card">
-            <span className="user-email">{user.email}</span>
+            <div className="user-info-text">
+              <span className="user-name">{user.username}</span>
+              <span className="user-email">{user.email}</span>
+            </div>
             <button className="logout-btn-small" onClick={logout}>Logout</button>
           </div>
         )}
