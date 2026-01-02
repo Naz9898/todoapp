@@ -162,7 +162,7 @@ html, body, #root {
   gap: 15px;
   background-color: #f8fafc;
   padding: 8px 16px;
-  border-radius: 6px; /* Bordi meno rotondi */
+  border-radius: 10px; /* Bordi meno rotondi */
   border: 1px solid #e2e8f0;
 }
 
@@ -222,6 +222,11 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   box-sizing: border-box; /* Fondamentale per non far uscire gli elementi */
+}
+
+.todo-sidebar h1, 
+.todo-sidebar h2 {
+  margin-bottom: 20px; /* Crea spazio sotto il titolo "I miei Todo" */
 }
 
 .todo-list {
