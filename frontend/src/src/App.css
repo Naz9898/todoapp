@@ -236,6 +236,16 @@ html, body, #root {
   width: 100%;
 }
 
+/* Stile per la card scaduta */
+.todo-card.overdue {
+  border-left: 4px solid #ef4444 !important; /* Bordo rosso a sinistra */
+  background-color: #fef2f2; /* Sfondo leggermente rossiccio */
+}
+
+.todo-card.overdue strong {
+  color: #b91c1c; /* Titolo rosso scuro */
+}
+
 .todo-workspace {
   flex: 1;
   background-color: #f0f2f5;
@@ -366,6 +376,33 @@ html, body, #root {
 .todo-card:hover {
   border-color: #1a88c5;
   background-color: white;
+}
+
+.todo-metadata {
+  background-color: #f8fafc;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px; /* Coerenza con i tuoi bordi squadrati */
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.metadata-item {
+  font-size: 0.8rem;
+  color: #64748b;
+  display: flex;
+  /* Cambia da space-between a flex-start */
+  justify-content: flex-start; 
+  gap: 10px; /* Aggiunge uno spazio fisso tra l'etichetta e la data */
+  margin-bottom: 4px;
+}
+
+.metadata-item strong {
+  color: #475569;
+  font-weight: 600;
+  min-width: 110px; /* Opzionale: allinea le date tra loro se le etichette hanno lunghezze diverse */
 }
 
 /* Stile per il bottone "+ Nuovo Task" */

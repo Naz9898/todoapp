@@ -323,7 +323,17 @@ app.put('/todo', authenticateToken, async (req: Request, res: Response) => {
   try {
     const sql = `
       UPDATE todo 
-      SET title = $1, content = $2, deadline = $3, is_completed = $4, last_modified_at = NOW()
+      SET 
+        title = $1, 
+        content = $2, 
+        deadline = $3, 
+        is_completed = $4, 
+        last_modified_at = NOW(),
+        completed_at = CASE 
+          WHEN $4 = true AND completed_at IS NULL THEN NOW()
+          WHEN $4 = false THEN NULL
+          ELSE completed_at
+        END
       WHERE todo_id = $5 AND user_id = $6
       RETURNING *;
     `;

@@ -46,20 +46,6 @@ function TodoList() {
   // Debug
   const [errorMessage, setErrorMessage] = useState<string>('') 
   
-  const TodoItem = ({todo}: {todo: Todo}) => {
-    return (
-      <>
-        <li 
-          className={`todo-card ${todo.is_completed ? 'completed' : 'pending'}`}
-          style={{ textDecoration: todo.is_completed ? 'line-through' : 'none' }} 
-          onClick={() => handleSelectedTodo(todo)} 
-        >
-          {todo.title}
-        </li>
-      </>
-    )
-  }
-  
   const getTodos = async () => {
     try{
       const token = localStorage.getItem('token');
@@ -133,13 +119,16 @@ function TodoList() {
         },
         body: JSON.stringify(todoData),
       })
-      const data = await response.json();
-      setErrorMessage(data.message);
-      setInputTitle('')
-      setInputContent('')
-      setInputDeadline('')
-      setInputIsCompleted(false)
-      getTodos()
+      if(response.ok){
+        const data = await response.json();
+        setErrorMessage(data.message);
+        setInputTitle('')
+        setInputContent('')
+        setInputDeadline('')
+        setInputIsCompleted(false)
+        setSelectedTodo(null)
+        getTodos()     
+      }
     } catch (error: any) {
       console.error("Network error:", error);
       setErrorMessage("Could not connect to the server. Please check your connection.")
@@ -148,26 +137,37 @@ function TodoList() {
 return (
     <>
       {/* Left Column */}
-      <aside className="todo-sidebar">
-        <div className="sidebar-header">
-          <h2>My task list</h2>
-          <button className="add-main-btn" onClick={() => handleSelectedTodo(null)}>
-            + New task
-          </button>
-        </div>
-        <ul className="todo-list">
-          {todos.map((item) => (
-            <li 
-              key={item.todo_id} 
-              className={`todo-card ${item.is_completed ? 'completed' : ''} ${selectedTodo?.todo_id === item.todo_id ? 'active' : ''}`}
-              onClick={() => handleSelectedTodo(item)}
-            >
-              <strong>{item.title}</strong>
-              <p>{item.deadline ? new Date(item.deadline).toLocaleDateString() : 'Nessuna scadenza'}</p>
-            </li>
-          ))}
-        </ul>
-      </aside>
+<aside className="todo-sidebar">
+  <div className="sidebar-header">
+    <h2>My task list</h2>
+    <button className="add-main-btn" onClick={() => handleSelectedTodo(null)}>
+      + New task
+    </button>
+  </div>
+  <ul className="todo-list">
+    {todos.map((item) => {
+      // Calcolo se il task è scaduto
+      const isOverdue = item.deadline && new Date(item.deadline) < new Date() && !item.is_completed;
+
+      return (
+        <li 
+          key={item.todo_id} 
+          className={`todo-card 
+            ${item.is_completed ? 'completed' : ''} 
+            ${selectedTodo?.todo_id === item.todo_id ? 'active' : ''} 
+            ${isOverdue ? 'overdue' : ''}` 
+          }
+          onClick={() => handleSelectedTodo(item)}
+        >
+          <div className="todo-card-content">
+            <strong>{item.title}</strong>
+            <p>Expires on: {new Date(item.deadline).toLocaleString()}</p>
+          </div>
+        </li>
+      );
+    })}
+  </ul>
+</aside>
 
       {/* Add and edit area */}
       <main className="todo-workspace">
@@ -211,6 +211,23 @@ return (
             />
             <span>Mark as completed</span>
           </label>
+
+          {/* Completion and T */}
+            {selectedTodo && (
+              <div className="todo-metadata">
+                <div className="metadata-item">
+                  <strong>Last modified:</strong> 
+                  <span>{new Date(selectedTodo.last_modified_at).toLocaleString()}</span>
+                </div>
+                
+                {selectedTodo.is_completed && selectedTodo.completed_at && (
+                  <div className="metadata-item">
+                    <strong>Completed on:</strong> 
+                    <span>{new Date(selectedTodo.completed_at).toLocaleString()}</span>
+                  </div>
+                )}
+              </div>
+            )}
 
           <button className="save-btn" onClick={handleAddTodo}>
             {selectedTodo === null ? "Add task" : "Edit Todo"}
