@@ -145,47 +145,80 @@ function TodoList() {
       setErrorMessage("Could not connect to the server. Please check your connection.")
     }
   }
-  return (
+return (
     <>
-      <div className="card">
-        <h1>My todo</h1>
-        <ul>
-          <button onClick={() => handleSelectedTodo(null)}> Add item </button>
-          { todos.map( (item) => ( <TodoItem key={item.todo_id} todo={item}/> ) )}
+      {/* Left Column */}
+      <aside className="todo-sidebar">
+        <div className="sidebar-header">
+          <h2>My task list</h2>
+          <button className="add-main-btn" onClick={() => handleSelectedTodo(null)}>
+            + New task
+          </button>
+        </div>
+        <ul className="todo-list">
+          {todos.map((item) => (
+            <li 
+              key={item.todo_id} 
+              className={`todo-card ${item.is_completed ? 'completed' : ''} ${selectedTodo?.todo_id === item.todo_id ? 'active' : ''}`}
+              onClick={() => handleSelectedTodo(item)}
+            >
+              <strong>{item.title}</strong>
+              <p>{item.deadline ? new Date(item.deadline).toLocaleDateString() : 'Nessuna scadenza'}</p>
+            </li>
+          ))}
         </ul>
-      </div>
-      <div className="card">
-        <h1>Add todo</h1>
-        <input 
-          type="text" 
-          placeholder="Title" 
-          value={inputTitle} 
-          onChange={(e) => setInputTitle(e.target.value)}
-        />
-        <input 
-          type="text" 
-          placeholder="Content" 
-          value={inputContent}
-          onChange={(e) => setInputContent(e.target.value)}
-        />
-        <input 
-          type="datetime-local" 
-          value={inputDeadline}
-          onChange={(e) => setInputDeadline(e.target.value)}
-        />
-        <label>
-          <input 
-            type="checkbox" 
-            checked={inputIsCompleted} 
-            onChange={(e) => setInputIsCompleted(e.target.checked)} 
-          />
-          Completed
-        </label>
-        <button onClick={handleAddTodo}>
-          {selectedTodo === null ? "Add todo" : "Edit todo"}
-        </button>
-        <p>{errorMessage}</p>
-      </div>
+      </aside>
+
+      {/* Add and edit area */}
+      <main className="todo-workspace">
+        <div className="workspace-card">
+          <h2>{selectedTodo === null ? "Create new task" : "Edit task"}</h2>
+          
+          <div className="form-group">
+            <label>Title</label>
+            <input 
+              type="text" 
+              placeholder="Title" 
+              value={inputTitle} 
+              onChange={(e) => setInputTitle(e.target.value)}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Content</label>
+            <textarea 
+              placeholder="Content" 
+              value={inputContent}
+              onChange={(e) => setInputContent(e.target.value)}
+              rows={4}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Deadline</label>
+            <input 
+              type="datetime-local" 
+              value={inputDeadline}
+              onChange={(e) => setInputDeadline(e.target.value)}
+            />
+          </div>
+
+          <label className="checkbox-container">
+            <input 
+              type="checkbox" 
+              checked={inputIsCompleted} 
+              onChange={(e) => setInputIsCompleted(e.target.checked)} 
+            />
+            <span>Mark as completed</span>
+          </label>
+
+          <button className="save-btn" onClick={handleAddTodo}>
+            {selectedTodo === null ? "Add task" : "Edit Todo"}
+          </button>
+          
+          {errorMessage && <p className="error-text">{errorMessage}</p>}
+        </div>
+      </main>
     </>
   )
 }
