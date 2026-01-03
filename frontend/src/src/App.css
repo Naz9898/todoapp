@@ -237,6 +237,17 @@ html, body, #root {
 }
 
 /* Stile per la card scaduta */
+.todo-card.completed {
+  border-left: 4px solid #10b981 !important; /* Verde smeraldo moderno */
+  background-color: #f0fdf4; /* Sfondo verde chiarissimo */
+}
+
+.todo-card.completed strong {
+  color: #047857; /* Testo verde scuro per leggibilità */
+  text-decoration: line-through; /* Mantiene l'effetto barrato */
+  opacity: 0.8;
+}
+
 .todo-card.overdue {
   border-left: 4px solid #ef4444 !important; /* Bordo rosso a sinistra */
   background-color: #fef2f2; /* Sfondo leggermente rossiccio */

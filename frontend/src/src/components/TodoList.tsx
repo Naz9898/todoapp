@@ -43,6 +43,7 @@ function TodoList() {
   const [inputContent, setInputContent] = useState<string>('')
   const [inputDeadline, setInputDeadline] = useState<string>('');
   const [inputIsCompleted, setInputIsCompleted] = useState<boolean>(false);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'completed' | 'pending'>('all');
   // Debug
   const [errorMessage, setErrorMessage] = useState<string>('') 
   
@@ -53,7 +54,7 @@ function TodoList() {
         setErrorMessage("You must login to add todos.");
         return;
       }
-      const response = await fetch('http://localhost:3000/todo', {
+      const response = await fetch('http://localhost:3000/todo?status=${currentFilter}', {
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -122,11 +123,9 @@ function TodoList() {
       if(response.ok){
         const data = await response.json();
         setErrorMessage(data.message);
-        setInputTitle('')
-        setInputContent('')
-        setInputDeadline('')
-        setInputIsCompleted(false)
-        setSelectedTodo(null)
+        if(selectedTodo==null){
+          setSelectedTodo(data.todo)
+        }
         getTodos()     
       }
     } catch (error: any) {
@@ -137,37 +136,38 @@ function TodoList() {
 return (
     <>
       {/* Left Column */}
-<aside className="todo-sidebar">
-  <div className="sidebar-header">
-    <h2>My task list</h2>
-    <button className="add-main-btn" onClick={() => handleSelectedTodo(null)}>
-      + New task
-    </button>
-  </div>
-  <ul className="todo-list">
-    {todos.map((item) => {
-      // Calcolo se il task è scaduto
-      const isOverdue = item.deadline && new Date(item.deadline) < new Date() && !item.is_completed;
+      <aside className="todo-sidebar">
+        <div className="sidebar-header">
+          <h2>My task list</h2>
+        <button className="add-main-btn" onClick={() => handleSelectedTodo(null)}>
+            + New task
+        </button>
+        </div>
 
-      return (
-        <li 
-          key={item.todo_id} 
-          className={`todo-card 
-            ${item.is_completed ? 'completed' : ''} 
-            ${selectedTodo?.todo_id === item.todo_id ? 'active' : ''} 
-            ${isOverdue ? 'overdue' : ''}` 
-          }
-          onClick={() => handleSelectedTodo(item)}
-        >
-          <div className="todo-card-content">
-            <strong>{item.title}</strong>
-            <p>Expires on: {new Date(item.deadline).toLocaleString()}</p>
-          </div>
-        </li>
-      );
-    })}
-  </ul>
-</aside>
+        <ul className="todo-list">
+          {todos.map((item) => {
+            // Calcolo se il task è scaduto
+            const isOverdue = item.deadline && new Date(item.deadline) < new Date() && !item.is_completed;
+
+            return (
+              <li 
+                key={item.todo_id} 
+                className={`todo-card 
+                  ${item.is_completed ? 'completed' : ''} 
+                  ${selectedTodo?.todo_id === item.todo_id ? 'active' : ''} 
+                  ${isOverdue ? 'overdue' : ''}` 
+                }
+                onClick={() => handleSelectedTodo(item)}
+              >
+                <div className="todo-card-content">
+                  <strong>{item.title}</strong>
+                  <p>Expires on: {new Date(item.deadline).toLocaleString()}</p>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </aside>
 
       {/* Add and edit area */}
       <main className="todo-workspace">
