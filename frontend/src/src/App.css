@@ -214,14 +214,14 @@ html, body, #root {
 /* --- DASHBOARD (Dentro TodoList.tsx) --- */
 
 .todo-sidebar {
-  width: 350px;
-  min-width: 350px;
-  background-color: white;
-  border-right: 1px solid #e2e8f0;
-  padding: 20px; /* Spazio uniforme sui 4 lati */
   display: flex;
   flex-direction: column;
-  box-sizing: border-box; /* Fondamentale per non far uscire gli elementi */
+  height: calc(100vh - 80px); /* Altezza fissa */
+  background-color: #ffffff;
+  border-right: 1px solid #e2e8f0;
+  width: 350px; /* Mantieni una larghezza fissa coerente */
+  position: sticky;
+  top: 80px;
 }
 
 .todo-sidebar h1, 
@@ -229,11 +229,44 @@ html, body, #root {
   margin-bottom: 20px; /* Crea spazio sotto il titolo "I miei Todo" */
 }
 
+.sidebar-header {
+  padding: 24px 20px 10px 20px; /* Più spazio in alto */
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  flex-shrink: 0; /* Impedisce a questa parte di rimpicciolirsi */
+}
+
+.sidebar-header h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
 .todo-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 20px 20px 20px; /* Padding laterale uguale all'header */
   list-style: none;
-  padding: 0;      /* Rimuove il rientro automatico delle liste */
-  margin: 20px 0;  /* Spazio tra titolo/bottone e lista */
-  width: 100%;
+  scrollbar-gutter: stable; /* Evita che la comparsa della scrollbar sposti il testo */
+}
+
+.todo-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.todo-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.todo-list::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+
+.todo-list::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 /* Stile per la card scaduta */
