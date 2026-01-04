@@ -88,6 +88,7 @@ function TodoList() {
       setInputIsCompleted(todo.is_completed);
       setSelectedTodo(todo)
     }
+    setErrorMessage("")
   }
     
   // Add todo button
@@ -100,6 +101,10 @@ function TodoList() {
     // Input Validation
     if (inputTitle.length === 0){
       setErrorMessage("Invalid title. Cannot be empty.")
+      return
+    }
+    if (inputDeadline.length === 0){
+      setErrorMessage("Invalid deadline. Cannot be empty.")
       return
     }
     setErrorMessage("");
@@ -123,9 +128,7 @@ function TodoList() {
       if(response.ok){
         const data = await response.json();
         setErrorMessage(data.message);
-        if(selectedTodo==null){
-          setSelectedTodo(data.todo)
-        }
+        handleSelectedTodo(data.todo)    
         getTodos()     
       }
     } catch (error: any) {
@@ -139,14 +142,13 @@ return (
       <aside className="todo-sidebar">
         <div className="sidebar-header">
           <h2>My task list</h2>
-        <button className="add-main-btn" onClick={() => handleSelectedTodo(null)}>
-            + New task
-        </button>
+          <button className="add-main-btn" onClick={() => handleSelectedTodo(null)}>
+              + New task
+          </button>
         </div>
 
         <ul className="todo-list">
           {todos.map((item) => {
-            // Calcolo se il task è scaduto
             const isOverdue = item.deadline && new Date(item.deadline) < new Date() && !item.is_completed;
 
             return (
