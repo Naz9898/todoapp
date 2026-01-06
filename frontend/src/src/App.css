@@ -269,6 +269,64 @@ html, body, #root {
   background: #94a3b8;
 }
 
+.todo-card {
+  display: flex !important;      /* Forza il layout flex */
+  flex-direction: row !important; /* Forza la direzione orizzontale */
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  width: 100%;                   /* Occupa tutto lo spazio della sidebar */
+  box-sizing: border-box;        /* Include padding nel calcolo della larghezza */
+  flex-wrap: nowrap;             /* IMPEDISCE assolutamente di andare sotto */
+}
+
+/* Questa parte occupa tutto lo spazio centrale */
+.todo-card-content {
+  flex: 1;                       /* Scorciatoia per flex-grow: 1, flex-shrink: 1 */
+  min-width: 0;                  /* TRUCCO FONDAMENTALE per far funzionare il troncamento del testo */
+  word-wrap: break-word; /* Rompe le parole troppo lunghe se necessario */
+  hyphens: auto;
+}
+
+.todo-card-content strong {
+  white-space: normal;          /* Impedisce al titolo di andare su due righe */
+  overflow: hidden;              /* Nasconde il testo in eccesso */
+  text-overflow: ellipsis;       /* Aggiunge i tre puntini (...) se il titolo è lungo */
+}
+
+/* La spunta rimane fissa sulla destra */
+.todo-check {
+  flex-shrink: 0;                /* Impedisce alla checkbox di schiacciarsi */
+  width: 22px;
+  height: 22px;
+  border: 2px solid #cbd5e1;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;         /* Impedisce alla spunta di rimpicciolirsi */
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.todo-check.checked {
+  background-color: #10b981;
+  border-color: #10b981;
+  color: white;
+}
+
+/* Hover sulla spunta */
+.todo-check:hover {
+  border-color: #1a88c5;
+  transform: scale(1.1);
+}
+
+/* Evidenzia il contenuto del task se completato */
+.todo-card.completed .todo-card-content {
+  opacity: 0.6;
+}
 /* Stile per la card scaduta */
 .todo-card.completed {
   border-left: 4px solid #10b981 !important; /* Verde smeraldo moderno */

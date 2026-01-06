@@ -72,7 +72,7 @@ function TodoList() {
     getTodos()
   }, [])
 
-// Logic function
+  // Logic function
   const handleSelectedTodo = (todo: Todo | null) => {
     if(todo === null){
       setInputTitle("")
@@ -136,7 +136,8 @@ function TodoList() {
       setErrorMessage("Could not connect to the server. Please check your connection.")
     }
   }
-    const handleDeleteTodo = async (id: number) => {
+  // Delete
+  const handleDeleteTodo = async (id: number) => {
     try{
       const token = localStorage.getItem('token');
       const response = await fetch(`http://localhost:3000/todo/${id}`, {
@@ -156,7 +157,41 @@ function TodoList() {
       setErrorMessage("Could not connect to the server. Please check your connection.")
     }
   }
-return (
+  const toggleTodoCompletion = async (e: React.MouseEvent, todo: Todo) => {
+    e.stopPropagation(); // Fondamentale: impedisce di selezionare la card quando clicchi sulla spunta
+
+    const token = localStorage.getItem('token');
+
+    const todoData = {
+      todo_id: todo.todo_id,
+      title: todo.title,
+      content: todo.content,
+      deadline: todo.deadline,
+      is_completed: !todo.is_completed
+    };
+
+    try {
+      const response = await fetch('http://localhost:3000/todo', {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(todoData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        getTodos(); 
+        if (selectedTodo?.todo_id === todo.todo_id )
+          setSelectedTodo(data.todo)
+          setInputIsCompleted(data.todo.is_completed);
+      }
+    } catch (error) {
+      console.error("Update error:", error);
+    }
+  };
+  return (
     <>
       {/* Left Column */}
       <aside className="todo-sidebar">
@@ -174,16 +209,21 @@ return (
             return (
               <li 
                 key={item.todo_id} 
-                className={`todo-card 
-                  ${item.is_completed ? 'completed' : ''} 
-                  ${selectedTodo?.todo_id === item.todo_id ? 'active' : ''} 
-                  ${isOverdue ? 'overdue' : ''}` 
-                }
+                className={`todo-card ${item.is_completed ? 'completed' : ''} ${selectedTodo?.todo_id === item.todo_id ? 'active' : ''} ${isOverdue ? 'overdue' : ''}`}
                 onClick={() => handleSelectedTodo(item)}
               >
+                {/* 1. Il testo sta a sinistra */}
                 <div className="todo-card-content">
                   <strong>{item.title}</strong>
                   <p>Expires on: {new Date(item.deadline).toLocaleString()}</p>
+                </div>
+
+                {/* 2. La spunta viene spinta a destra dal flex-grow del contenuto */}
+                <div 
+                  className={`todo-check ${item.is_completed ? 'checked' : ''}`}
+                  onClick={(e) => toggleTodoCompletion(e, item)}
+                >
+                  {item.is_completed && '✓'}
                 </div>
               </li>
             );
