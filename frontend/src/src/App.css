@@ -369,6 +369,24 @@ html, body, #root {
   transform: translateY(-1px);
 }
 
+.delete-btn {
+  background-color: transparent;
+  color: #ef4444;
+  border: 1px solid #ef4444;
+  width: 100%;
+  padding: 14px;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.2s;
+}
+
+.delete-btn:hover {
+  background-color: #ef4444;
+  color: white;
+}
+
 /* Container per il checkbox */
 .checkbox-container {
   display: flex;

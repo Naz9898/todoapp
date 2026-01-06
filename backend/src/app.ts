@@ -361,3 +361,33 @@ app.put('/todo', authenticateToken, async (req: Request, res: Response) => {
     res.status(500).json({ message: "Internal server error." });
   }
 });
+
+app.delete('/todo/:id', authenticateToken, async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  const { id } = req.params; 
+
+  try {
+    const sql = `
+      DELETE FROM todo 
+      WHERE todo_id = $1 AND user_id = $2
+      RETURNING *;
+    `;
+
+    const result = await query(sql, [id, user.user_id]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ 
+        message: "Todo not found or you don't have permission to delete it." 
+      });
+    }
+
+    res.status(200).json({
+      message: "Todo deleted successfully.",
+      deletedTodo: result.rows[0]
+    });
+
+  } catch (error) {
+    console.error("Delete error:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});

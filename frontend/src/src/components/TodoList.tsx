@@ -136,6 +136,26 @@ function TodoList() {
       setErrorMessage("Could not connect to the server. Please check your connection.")
     }
   }
+    const handleDeleteTodo = async (id: number) => {
+    try{
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:3000/todo/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if(response.ok){
+        const data = await response.json();
+        if (selectedTodo?.todo_id === id) {
+          handleSelectedTodo(null);
+        }
+        getTodos()    
+        setErrorMessage(data.message); 
+      }
+    } catch (error: any) {
+      console.error("Network error:", error);
+      setErrorMessage("Could not connect to the server. Please check your connection.")
+    }
+  }
 return (
     <>
       {/* Left Column */}
@@ -214,7 +234,7 @@ return (
             <span>Mark as completed</span>
           </label>
 
-          {/* Completion and T */}
+          {/* Last modified and completed date  */}
             {selectedTodo && (
               <div className="todo-metadata">
                 <div className="metadata-item">
@@ -234,6 +254,14 @@ return (
           <button className="save-btn" onClick={handleAddTodo}>
             {selectedTodo === null ? "Add task" : "Edit Todo"}
           </button>
+          {selectedTodo && (
+            <button 
+              className="delete-btn" 
+              onClick={() => handleDeleteTodo(selectedTodo.todo_id)}
+            >
+              Delete Task
+            </button>
+          )}
           
           {errorMessage && <p className="error-text">{errorMessage}</p>}
         </div>
