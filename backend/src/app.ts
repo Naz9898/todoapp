@@ -287,28 +287,25 @@ app.get('/todo', authenticateToken, async (req: Request<{}, TodoResponseBody, To
   }
   const user = (req as any).user;
   const { status } = req.query
-  try{
-    const sql = `
-      SELECT * FROM todo 
-      WHERE user_id = $1 
-      ORDER BY deadline ASC;
-    `;
-    const result = await query(sql, [user.user_id]);
-    const todos: Todo[] = result.rows.map((row: any) => ({
-        todo_id: row.todo_id,
-        user_id: row.user_id,
-        created_at: row.created_at,
-        last_modified_at: row.last_modified_at,
-        title: row.title,
-        content: row.content,
-        is_completed: row.is_completed,
-        deadline: row.deadline,
-        completed_at: row.completed_at || null
-    }));
-    res.status(200).json({
-      todos: todos
-    })
-    return
+  try {
+    let sql = 'SELECT * FROM todo WHERE user_id = $1';
+    const params: any[] = [user.user_id];
+
+    // Aggiungiamo la condizione in base al filtro
+    if (status === 'completed') {
+      sql += ' AND is_completed = true';
+    } else if (status === 'pending') {
+      sql += ' AND is_completed = false';
+    }
+
+    // Ordiniamo per data (i più recenti in alto)
+    sql += ' ORDER BY created_at DESC';
+
+    const result = await query(sql, params);
+    
+    res.json({
+      todos: result.rows
+    });
   }catch (error: any){
     console.error("Database Error:", error)
     res.status(500).json({ message: "Internal server error." })

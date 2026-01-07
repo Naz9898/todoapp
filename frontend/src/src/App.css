@@ -244,6 +244,32 @@ html, body, #root {
   margin: 0;
 }
 
+.status-select {
+  /* Mantieni le tue dimensioni preferite */
+  padding: 10px 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  color: #1e293b;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+
+  
+  /* Aggiungi un minimo di min-width per evitare che saltelli quando cambi testo */
+  min-width: 140px; 
+}
+
+.status-select:focus {
+  border-color: #3b82f6;
+}
+
+.filter-container {
+  margin-top: 10px;
+  padding: 10px 20px 20px 20px;
+}
+
 .todo-list {
   flex: 1;
   overflow-y: auto;

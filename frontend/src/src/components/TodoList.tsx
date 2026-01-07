@@ -47,14 +47,14 @@ function TodoList() {
   // Debug
   const [errorMessage, setErrorMessage] = useState<string>('') 
   
-  const getTodos = async () => {
+  const getTodos = async (currentFilter: string = statusFilter) => {
     try{
       const token = localStorage.getItem('token');
       if (!token) {
         setErrorMessage("You must login to add todos.");
         return;
       }
-      const response = await fetch('http://localhost:3000/todo?status=${currentFilter}', {
+      const response = await fetch(`http://localhost:3000/todo?status=${currentFilter}`, {
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -201,7 +201,21 @@ function TodoList() {
               + New task
           </button>
         </div>
-
+        <div className="filter-container">
+          <select 
+            value={statusFilter} 
+            onChange={(e) => {
+              const newFilter = e.target.value as 'all' | 'completed' | 'pending';
+              setStatusFilter(newFilter);
+              getTodos(newFilter); // Ricarica subito i dati quando cambi filtro
+            }}
+            className="status-select"
+          >
+            <option value="all">All Tasks</option>
+            <option value="pending">Pending</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
         <ul className="todo-list">
           {todos.map((item) => {
             const isOverdue = item.deadline && new Date(item.deadline) < new Date() && !item.is_completed;
