@@ -224,6 +224,24 @@ html, body, #root {
   top: 80px;
 }
 
+.todo-sidebar input,
+.todo-sidebar textarea {
+  padding: 12px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background-color: #fcfcfd;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.todo-sidebar input:focus,
+.todo-sidebar textarea {
+  outline: none;
+  border-color: #1a88c5;
+  background-color: #fff;
+  box-shadow: 0 0 0 4px rgba(26, 136, 197, 0.1);
+}
+
 .todo-sidebar h1, 
 .todo-sidebar h2 {
   margin-bottom: 20px; /* Crea spazio sotto il titolo "I miei Todo" */
@@ -244,31 +262,129 @@ html, body, #root {
   margin: 0;
 }
 
-.status-select {
-  /* Mantieni le tue dimensioni preferite */
+/* Nuova sezione Filtri */
+.filters-section {
   padding: 10px 20px;
+  border-bottom: 1px solid var(--border-color);
+  background-color: #fff;
+}
+
+.section-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.section-label:nth-of-type(2) {
+  margin-top: 25px; 
+}
+
+.filters-row {
+  display: flex;
+  gap: 8px; /* Affianca i dropdown */
+  margin-bottom: 15px;
+}
+
+.status-select {
+  flex: 1;
+  padding: 10px 12px;
+  /* Bordo leggero e arrotondamento coerente */
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background-color: #f8fafc;
-  color: #1e293b;
+  border-radius: 10px; 
+  background-color: #fcfcfd;
+  font-size: 0.85rem;
   font-weight: 500;
+  color: #475569;
   cursor: pointer;
   outline: none;
-  transition: border-color 0.2s;
-
-  
-  /* Aggiungi un minimo di min-width per evitare che saltelli quando cambi testo */
-  min-width: 140px; 
+  transition: all 0.2s ease;
 }
 
 .status-select:focus {
-  border-color: #3b82f6;
+  border-color: var(--primary-blue);
 }
 
-.filter-container {
-  margin-top: 10px;
-  padding: 10px 20px 20px 20px;
+/* Gestione Tag Dropdown (Details/Summary) */
+.tags-management {
+  margin-top: 5px;
 }
+
+.tag-input-group {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.tag-input-group input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.add-tag-mini-btn {
+  background-color: var(--primary-blue);
+  color: white;
+  border: none;
+  padding: 0 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tags-details {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: #fcfcfd;
+}
+
+.tags-details summary {
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  list-style: none; /* Rimuove la freccia standard su alcuni browser */
+  display: flex;
+  justify-content: space-between;
+}
+
+.tags-details summary::after {
+  content: '▾';
+}
+
+.tag-edit-list {
+  list-style: none;
+  padding: 5px 12px 10px 12px;
+  max-height: 150px;
+  overflow-y: auto;
+  border-top: 1px solid var(--border-color);
+}
+
+.tag-edit-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+.delete-tag-btn {
+  background: none;
+  border: none;
+  color: #cbd5e1;
+  font-size: 1.2rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.delete-tag-btn:hover { color: #ef4444; }
 
 .todo-list {
   flex: 1;
@@ -432,6 +548,41 @@ html, body, #root {
   border-color: #1a88c5;
   background-color: #fff;
   box-shadow: 0 0 0 4px rgba(26, 136, 197, 0.1);
+}
+
+/* tag */
+.tags-selection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  max-height: 150px;
+  overflow-y: auto; /* Scroll se hai troppi tag */
+}
+
+.tag-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: #475569;
+}
+
+.tag-checkbox-label input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.hint-text {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  font-style: italic;
+  margin-top: 5px;
 }
 
 .save-btn {
