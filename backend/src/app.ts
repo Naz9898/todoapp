@@ -222,6 +222,7 @@ interface TodoRequestBody {
   content: string
   deadline: string
   is_completed: boolean
+  tags: string[] | null
 }
 
 interface TodoResponseBody {
@@ -233,7 +234,7 @@ app.post('/todo', authenticateToken, async (req: Request<{}, TodoResponseBody, T
   if(debug){
     console.dir(req.body, { depth: null });
   }
-  const { title, content, deadline, is_completed } = req.body;
+  const { title, content, deadline, is_completed, tags } = req.body;
   const user = (req as any).user;
   // Input validation
   if (!title || title.trim().length === 0){
@@ -251,6 +252,7 @@ app.post('/todo', authenticateToken, async (req: Request<{}, TodoResponseBody, T
 
   // Insert in Db
   try{
+    await query('BEGIN');
     const sql = `
       INSERT INTO todo (user_id, title, content, deadline, is_completed) 
       VALUES ($1, $2, $3, $4, $5) 
@@ -269,55 +271,80 @@ app.post('/todo', authenticateToken, async (req: Request<{}, TodoResponseBody, T
         deadline: row.deadline,
         completed_at: row.completed_at || null
     }
+    if (tags && tags.length > 0) {
+      // Prepariamo l'inserimento multiplo
+      // Esempio: INSERT INTO todo_tags (todo_id, tag_id) VALUES (1, 10), (1, 12)...
+      const values = tags.map(tagId => `(${todo.todo_id}, ${tagId})`).join(',');
+      const insertTagsQuery = `INSERT INTO todo_tags (todo_id, tag_id) VALUES ${values}`;
+      await query(insertTagsQuery);
+    }
+    await query('COMMIT');
     res.status(201).json({
       message: "Todo created",
       todo: todo
     })
     return
   } catch (error: any){
+    await query('ROLLBACK')
     console.error("Database Error:", error)
     res.status(500).json({ message: "Internal server error." })
     return
   }
 })
 
-app.get('/todo', authenticateToken, async (req: Request<{}, TodoResponseBody, TodoRequestBody>, res: Response) => {
-  if(debug){
-    console.dir(req.body, { depth: null });
-  }
+app.get('/todo', authenticateToken, async (req: Request, res: Response) => {
   const user = (req as any).user;
-  const { status } = req.query
+  const { status } = req.query;
+
   try {
-    let sql = 'SELECT * FROM todo WHERE user_id = $1';
+    // 1. Query complessa con JOIN e aggregazione JSON
+    // COALESCE gestisce i casi senza tag restituendo un array vuoto [] invece di null
+    let sql = `
+      SELECT 
+        t.*, 
+        COALESCE(
+          json_agg(
+            json_build_object('tag_id', tg.tag_id, 'tag_name', tg.tag_name)
+          ) FILTER (WHERE tg.tag_id IS NOT NULL), 
+          '[]'
+        ) AS tags
+      FROM todo t
+      LEFT JOIN todo_tags tt ON t.todo_id = tt.todo_id
+      LEFT JOIN tag tg ON tt.tag_id = tg.tag_id
+      WHERE t.user_id = $1
+    `;
+
     const params: any[] = [user.user_id];
 
-    // Aggiungiamo la condizione in base al filtro
+    // 2. Aggiunta filtri dinamici
     if (status === 'completed') {
-      sql += ' AND is_completed = true';
+      sql += ' AND t.is_completed = true';
     } else if (status === 'pending') {
-      sql += ' AND is_completed = false';
+      sql += ' AND t.is_completed = false';
     }
 
-    // Ordiniamo per data (i più recenti in alto)
-    sql += ' ORDER BY created_at DESC';
+    // 3. Raggruppamento (obbligatorio quando si usa json_agg) e ordinamento
+    sql += ' GROUP BY t.todo_id ORDER BY t.created_at DESC';
 
     const result = await query(sql, params);
-    
+
+    // 4. Invio risposta
     res.json({
       todos: result.rows
     });
-  }catch (error: any){
-    console.error("Database Error:", error)
-    res.status(500).json({ message: "Internal server error." })
-    return
+
+  } catch (error: any) {
+    console.error("Database Error:", error);
+    res.status(500).json({ message: "Internal server error." });
   }
-})
+});
 
 app.put('/todo', authenticateToken, async (req: Request, res: Response) => {
   const user = (req as any).user;
-  const { todo_id, title, content, deadline, is_completed } = req.body;
+  const { todo_id, title, content, deadline, is_completed, tags } = req.body;
 
   try {
+    await query('BEGIN');
     const sql = `
       UPDATE todo 
       SET 
@@ -345,15 +372,25 @@ app.put('/todo', authenticateToken, async (req: Request, res: Response) => {
     ]);
 
     if (result.rows.length === 0) {
+      await query('ROLLBACK')
       return res.status(404).json({ message: "Todo not found." });
     }
+    await query('DELETE FROM todo_tags WHERE todo_id = $1', [todo_id]);
 
+    if(tags && tags.length > 0){
+      const values = tags.map((tagId: string) => `(${todo_id}, ${tagId})`).join(',');
+      const insertTagsQuery = `INSERT INTO todo_tags (todo_id, tag_id) VALUES ${values}`;
+      await query(insertTagsQuery);
+    }
+
+    await query('COMMIT');
     res.status(200).json({
       message: "Todo updated.",
       todo: result.rows[0]
     });
 
   } catch (error) {
+    await query('ROLLBACK')
     console.error(error);
     res.status(500).json({ message: "Internal server error." });
   }

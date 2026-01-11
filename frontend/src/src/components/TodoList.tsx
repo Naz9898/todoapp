@@ -10,7 +10,7 @@ interface Todo{
   is_completed: boolean
   deadline: string
   completed_at: string | null
-  tags: number[] | null
+  tags: { tag_id: number; tag_name: string }[] | null[] | null
 }
 
 interface TodoCreateEdit{
@@ -430,8 +430,35 @@ function TodoList() {
                 )}
               </div>
             )}
-          <div className="form-group">
+          {selectedTodo && selectedTagIds.length > 0 && (
+          <div className="active-tags-display">
+            <label className="section-label">Active Tags</label>
+            <div className="tags-pill-container">
+              {allTags
+                .filter(tag => selectedTagIds.includes(tag.tag_id))
+                .map(tag => (
+                  <span key={tag.tag_id} className="tag-pill">
+                    {tag.name}
+                  </span>
+                ))}
+            </div>
+          </div>
+        )}
+        
+        <div className="form-group">
           <label>Assign Tags</label>
+          
+          {/* Mostra i nomi dei tag già assegnati in modo testuale */}
+          {selectedTagIds.length > 0 && (
+            <div className="active-tags-list">
+              <span className="hint-text">Active: </span>
+              {allTags
+                .filter(t => selectedTagIds.includes(t.tag_id))
+                .map(t => t.name)
+                .join(", ")}
+            </div>
+          )}
+
           <div className="tags-selection-grid">
             {allTags.map(tag => (
               <label key={tag.tag_id} className="tag-checkbox-label">
@@ -450,8 +477,8 @@ function TodoList() {
               </label>
             ))}
           </div>
-          {allTags.length === 0 && <p className="hint-text">Create tags in the sidebar first!</p>}
         </div>
+
           <button className="save-btn" onClick={handleAddTodo}>
             {selectedTodo === null ? "Add task" : "Edit Todo"}
           </button>

@@ -550,7 +550,51 @@ html, body, #root {
   box-shadow: 0 0 0 4px rgba(26, 136, 197, 0.1);
 }
 
-/* tag */
+/* tag display*/
+.active-tags-list {
+  font-size: 0.85rem;
+  color: #1a88c5;
+  font-weight: 600;
+  margin-bottom: 8px;
+  background: #f0f9ff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.active-tags-display {
+  margin-bottom: 15px;
+}
+
+.tags-pill-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 5px;
+}
+
+.tag-pill {
+  background-color: #e0f2fe;
+  color: #0369a1;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid #bae6fd;
+}
+
+/* Stile per la griglia di selezione per differenziarla */
+.tags-selection-grid {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 12px;
+  border-radius: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+/* tag edit*/
 .tags-selection-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
