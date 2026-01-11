@@ -294,11 +294,9 @@ app.post('/todo', authenticateToken, async (req: Request<{}, TodoResponseBody, T
 
 app.get('/todo', authenticateToken, async (req: Request, res: Response) => {
   const user = (req as any).user;
-  const { status } = req.query;
+  const { status, tag_id } = req.query;
 
   try {
-    // 1. Query complessa con JOIN e aggregazione JSON
-    // COALESCE gestisce i casi senza tag restituendo un array vuoto [] invece di null
     let sql = `
       SELECT 
         t.*, 
@@ -316,26 +314,29 @@ app.get('/todo', authenticateToken, async (req: Request, res: Response) => {
 
     const params: any[] = [user.user_id];
 
-    // 2. Aggiunta filtri dinamici
+    // Filtro Stato (Pendente/Completato)
     if (status === 'completed') {
       sql += ' AND t.is_completed = true';
     } else if (status === 'pending') {
       sql += ' AND t.is_completed = false';
     }
 
-    // 3. Raggruppamento (obbligatorio quando si usa json_agg) e ordinamento
-    sql += ' GROUP BY t.todo_id ORDER BY t.created_at DESC';
+    sql += ' GROUP BY t.todo_id';
+
+    // FILTRO PER TAG (Utilizziamo HAVING perché tags è un'aggregazione)
+    // Oppure, più semplicemente, filtriamo i task che hanno quell'ID nella tabella di giunzione
+    if (tag_id) {
+      params.push(tag_id);
+      // Cerchiamo se nell'aggregazione di ID esiste quello cercato
+      sql += ` HAVING $${params.length} = ANY(array_agg(tg.tag_id))`;
+    }
+
+    sql += ' ORDER BY t.created_at DESC';
 
     const result = await query(sql, params);
-
-    // 4. Invio risposta
-    res.json({
-      todos: result.rows
-    });
-
-  } catch (error: any) {
-    console.error("Database Error:", error);
-    res.status(500).json({ message: "Internal server error." });
+    res.json({ todos: result.rows });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching todos" });
   }
 });
 

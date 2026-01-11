@@ -94,57 +94,66 @@ function TodoList() {
     }
   };
 
-  const handleDeleteTag = async (tagId: number) => {
+const handleDeleteTag = async (tagId: number) => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`http://localhost:3000/tag/${tagId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (response.ok) {
+      // 1. Ricarichiamo i tag globali
+      fetchTags(); 
+
+      // 2. Determiniamo il nuovo filtro tag
+      // Se il tag cancellato era quello attivo, dobbiamo resettare a null
+      const nextTagFilter = activeTagFilter === tagId ? null : activeTagFilter;
+      
+      if (activeTagFilter === tagId) {
+        setActiveTagFilter(null);
+      }
+
+      // 3. Se il task selezionato nel workspace aveva questo tag, rimuoviamolo dalla visualizzazione locale
+      if (selectedTagIds.includes(tagId)) {
+        setSelectedTagIds(prev => prev.filter(id => id !== tagId));
+      }
+
+      // 4. IMPORTANTISSIMO: Passiamo i valori aggiornati a getTodos
+      // Non fidarti dello stato "activeTagFilter" qui perché non è ancora aggiornato
+      getTodos(statusFilter, nextTagFilter); 
+      
+      setErrorMessage("Tag eliminato correttamente.");
+    }
+  } catch (error) {
+    console.error("Error deleting tag:", error);
+    setErrorMessage("Errore di connessione.");
+  }
+};
+  const getTodos = async (currentStatus = statusFilter, currentTag = activeTagFilter) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3000/tag/${tagId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      if (!token) return;
 
-      if (response.ok) {
-        // 1. Ricarichiamo i tag per aggiornare sidebar e workspace
-        fetchTags(); 
-        
-        // 2. Se il filtro attivo era il tag appena cancellato, resettiamolo
-        if (activeTagFilter === tagId) {
-          setActiveTagFilter(null);
+      // Costruiamo l'URL dinamicamente
+        let url = `http://localhost:3000/todo?status=${currentStatus}`;
+        if (currentTag) {
+          url += `&tag_id=${currentTag}`;
         }
+
+        const response = await fetch(url, {
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
         
-        // 3. Ricarichiamo i Todo perché i loro array di tag sono cambiati
-        getTodos(); 
-        
-        setErrorMessage("Tag eliminato correttamente.");
-      } else {
-        setErrorMessage("Impossibile eliminare il tag.");
+        const data = await response.json();
+        setTodos(data.todos);
+      } catch (error) {
+        console.error("Network error:", error);
       }
-    } catch (error) {
-      console.error("Error deleting tag:", error);
-      setErrorMessage("Errore di connessione durante l'eliminazione.");
-    }
-  };
-  const getTodos = async (currentFilter: string = statusFilter) => {
-    try{
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setErrorMessage("You must login to add todos.");
-        return;
-      }
-      const response = await fetch(`http://localhost:3000/todo?status=${currentFilter}`, {
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      })
-      const data = await response.json();
-      setTodos(data.todos);
-    } catch (error: any) {
-      console.error("Network error:", error);
-      setErrorMessage("Could not connect to the server. Please check your connection.")
-    }
-  }
+    };
 
   useEffect( () => {
     getTodos()
@@ -240,40 +249,47 @@ function TodoList() {
       setErrorMessage("Could not connect to the server. Please check your connection.")
     }
   }
-  const toggleTodoCompletion = async (e: React.MouseEvent, todo: Todo) => {
-    e.stopPropagation(); // Fondamentale: impedisce di selezionare la card quando clicchi sulla spunta
+const toggleTodoCompletion = async (e: React.MouseEvent, todo: Todo) => {
+  e.stopPropagation();
 
-    const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token');
 
-    const todoData = {
-      todo_id: todo.todo_id,
-      title: todo.title,
-      content: todo.content,
-      deadline: todo.deadline,
-      is_completed: !todo.is_completed
-    };
+  // Recuperiamo gli ID dei tag correnti per non perderli durante l'update
+  const currentTagIds = todo.tags ? todo.tags.map((t: any) => t.tag_id) : [];
 
-    try {
-      const response = await fetch('http://localhost:3000/todo', {
-        method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(todoData),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        getTodos(); 
-        if (selectedTodo?.todo_id === todo.todo_id )
-          setSelectedTodo(data.todo)
-          setInputIsCompleted(data.todo.is_completed);
-      }
-    } catch (error) {
-      console.error("Update error:", error);
-    }
+  const todoData = {
+    todo_id: todo.todo_id,
+    title: todo.title,
+    content: todo.content,
+    deadline: todo.deadline,
+    is_completed: !todo.is_completed,
+    tags: currentTagIds // <--- AGGIUNGI QUESTO
   };
+
+  try {
+    const response = await fetch('http://localhost:3000/todo', {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(todoData),
+    });
+
+    if (response.ok) {
+      // Invece di aspettare getTodos(), l'update locale è più fluido
+      getTodos(); 
+      // Se il todo che abbiamo appena spuntato è quello aperto nel workspace, aggiorniamolo
+      if (selectedTodo?.todo_id === todo.todo_id) {
+        const data = await response.json();
+        // Assicurati che handleSelectedTodo riceva il todo aggiornato con i tag dal server
+        handleSelectedTodo(data.todo);
+      }
+    }
+  } catch (error) {
+    console.error("Update error:", error);
+  }
+};
   return (
     <>
       {/* Left Column */}
@@ -320,7 +336,7 @@ function TodoList() {
               onChange={(e) => {
                 const newFilter = e.target.value as 'all' | 'completed' | 'pending';
                 setStatusFilter(newFilter);
-                getTodos(newFilter);
+                getTodos(newFilter, activeTagFilter);
               }}
               className="status-select"
             >
@@ -332,7 +348,11 @@ function TodoList() {
             {/* Filtro Tag (Dropdown) */}
             <select 
               value={activeTagFilter || ""} 
-              onChange={(e) => setActiveTagFilter(e.target.value ? Number(e.target.value) : null)}
+              onChange={(e) => {
+                const val = e.target.value ? Number(e.target.value) : null;
+                setActiveTagFilter(val);
+                getTodos(statusFilter, val); // Passa lo stato attuale e il tag nuovo
+              }}
               className="status-select"
             >
               <option value="">All Tags</option>
@@ -444,7 +464,7 @@ function TodoList() {
             </div>
           </div>
         )}
-        
+
         <div className="form-group">
           <label>Assign Tags</label>
           
