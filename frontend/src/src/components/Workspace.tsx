@@ -1,7 +1,12 @@
 import React from 'react';
 import type { Todo, Tag } from '../types';
 
-interface TodoWorkspaceProps {
+const TodoWorkspace = ({
+  selectedTodo, inputTitle, inputContent, inputDeadline,
+  inputIsCompleted, selectedTagIds, allTags, errorMessage,
+  onTitleChange, onContentChange, onDeadlineChange,
+  onIsCompletedChange, onTagToggle, onSave, onDelete
+}: {
   selectedTodo: Todo | null;
   inputTitle: string;
   inputContent: string;
@@ -17,13 +22,6 @@ interface TodoWorkspaceProps {
   onTagToggle: (tagId: number) => void;
   onSave: () => void;
   onDelete: (id: number) => void;
-}
-
-const TodoWorkspace: React.FC<TodoWorkspaceProps> = ({
-  selectedTodo, inputTitle, inputContent, inputDeadline,
-  inputIsCompleted, selectedTagIds, allTags, errorMessage,
-  onTitleChange, onContentChange, onDeadlineChange,
-  onIsCompletedChange, onTagToggle, onSave, onDelete
 }) => {
   return (
     <main className="todo-workspace">

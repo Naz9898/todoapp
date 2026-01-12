@@ -1,7 +1,11 @@
 import React from 'react';
 import type { Todo, Tag } from '../types';
 
-interface SidebarProps {
+const Sidebar = ({
+  todos, allTags, selectedTodoId, statusFilter, activeTagFilter,
+  newTagName, onSelectTodo, onStatusFilterChange, onTagFilterChange,
+  onAddTag, onDeleteTag, onNewTagNameChange, onToggleComplete
+}:{
   todos: Todo[];
   allTags: Tag[];
   selectedTodoId?: number;
@@ -15,12 +19,6 @@ interface SidebarProps {
   onDeleteTag: (id: number) => void;
   onNewTagNameChange: (name: string) => void;
   onToggleComplete: (e: React.MouseEvent, todo: Todo) => void;
-}
-
-const Sidebar: React.FC<SidebarProps> = ({
-  todos, allTags, selectedTodoId, statusFilter, activeTagFilter,
-  newTagName, onSelectTodo, onStatusFilterChange, onTagFilterChange,
-  onAddTag, onDeleteTag, onNewTagNameChange, onToggleComplete
 }) => {
   return (
     <aside className="todo-sidebar">
