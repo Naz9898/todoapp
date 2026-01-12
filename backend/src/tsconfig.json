@@ -9,5 +9,9 @@
     "skipLibCheck": true,
 
     "strict": true,
-  }
+    "outDir": "../dist",   /* backend/dist */
+    "rootDir": "."         /* backend/src */
+  },
+  "include": ["**/*"],     /* backend/src/* */
+  "exclude": ["node_modules"]
 }

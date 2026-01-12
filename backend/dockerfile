@@ -1,7 +1,19 @@
-FROM node:25-alpine3.22
+# STAGE 1: Build
+FROM node:25-alpine3.22 AS builder
 WORKDIR /app
-COPY ./src .
+COPY ./src/package*.json ./
+COPY ./src/tsconfig.json ./
 RUN npm install
-RUN npx tsc
+COPY ./src ./
+RUN npx tsc -p tsconfig.json
+
+# STAGE 2: Run
+FROM node:25-alpine3.22 AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+COPY ./src/package*.json ./
+RUN npm install --omit=dev
+COPY --from=builder /dist ./dist
+USER node
 EXPOSE 3000
-CMD [ "npx", "tsx", "app.ts" ]
+CMD [ "node", "dist/app.js" ]
