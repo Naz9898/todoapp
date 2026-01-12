@@ -14,35 +14,31 @@ interface Todo{
   is_completed: boolean
   deadline: string
   completed_at: string | null
-  tags: string[] | null
+  tags: string[] 
 }
 
-interface TodoRequestBody {
-  title: string
-  content: string
-  deadline: string
-  is_completed: boolean
-  tags: string[] | null
-}
+export type CreateTodoInput = Omit<Todo, 'todo_id' | 'user_id' | 'created_at' | 'last_modified_at' | 'completed_at'>;
 
 interface TodoResponseBody {
-  message: string;
-  todo: Todo
+  message: string
+  todo: Todo | null
 }
 
-router.post('/', authenticateToken, async (req: Request<{}, TodoResponseBody, TodoRequestBody>, res: Response) => {
+router.post('/', authenticateToken, async (req: Request<{}, {}, CreateTodoInput>, res: Response<TodoResponseBody>) => {
   const { title, content, deadline, is_completed, tags } = req.body;
   const user = (req as any).user;
   // Input validation
   if (!title || title.trim().length === 0){
     res.status(400).json({
-      message: "400 Bad Request: Title cannot be empty",
+      message: "Title cannot be empty",
+      todo: null
     });
     return
   }
   if (!deadline || deadline.length === 0){
     res.status(400).json({
-      message: "400 Bad Request: Deadline cannot be empty",
+      message: "Deadline cannot be empty",
+      todo: null
     });
     return
   }
@@ -54,24 +50,15 @@ router.post('/', authenticateToken, async (req: Request<{}, TodoResponseBody, To
       INSERT INTO todo (user_id, title, content, deadline, is_completed) 
       VALUES ($1, $2, $3, $4, $5) 
       RETURNING *;
-    `;
-    const result = await query(sql, [user.user_id, title, content, deadline, is_completed]);
-    const row = result.rows[0];
-    let todo: Todo = {
-        todo_id: row.todo_id,
-        user_id: row.user_id,
-        created_at: row.created_at,
-        last_modified_at: row.last_modified_at,
-        title: row.title,
-        content: row.content,
-        is_completed: row.is_completed, 
-        deadline: row.deadline,
-        completed_at: row.completed_at || null,
-        tags: []
+    `
+    const result = await query(sql, [user.user_id, title, content, deadline, is_completed])
+    const row = result.rows[0]
+    const todo: Todo = {
+    ...row,           
+    tags: []
     }
     if (tags && tags.length > 0) {
-      // Prepariamo l'inserimento multiplo
-      // Esempio: INSERT INTO todo_tags (todo_id, tag_id) VALUES (1, 10), (1, 12)...
+      // INSERT INTO todo_tags (todo_id, tag_id) VALUES (1, 10), (1, 12)...
       const values = tags.map(tagId => `(${todo.todo_id}, ${tagId})`).join(',');
       const insertTagsQuery = `INSERT INTO todo_tags (todo_id, tag_id) VALUES ${values}`;
       await query(insertTagsQuery);
@@ -92,7 +79,11 @@ router.post('/', authenticateToken, async (req: Request<{}, TodoResponseBody, To
   } catch (error: any){
     await query('ROLLBACK')
     console.error("Database Error:", error)
-    res.status(500).json({ message: "Internal server error." })
+    res.status(500).json(
+        { 
+            message: "Internal server error.", 
+            todo: null
+        })
     return
   }
 })
