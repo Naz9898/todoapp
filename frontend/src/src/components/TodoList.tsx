@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import type { Todo, Tag, TodoCreateEdit } from '../types';
 import Sidebar from './Sidebar';
+import TodoWorkspace from './Workspace';
 
 const formatDateTime = (dateString: string | null) => {
   if (!dateString) return "";
@@ -290,125 +291,27 @@ const toggleTodoCompletion = async (e: React.MouseEvent, todo: Todo) => {
         onToggleComplete={toggleTodoCompletion}
       />
 
-      {/* Add and edit area */}
-      <main className="todo-workspace">
-        <div className="workspace-card">
-          <h2>{selectedTodo === null ? "Create new task" : "Edit task"}</h2>
-          <div className="workspace-form-scroll">
-          <div className="form-group">
-            <label>Title</label>
-            <input 
-              type="text" 
-              placeholder="Title" 
-              value={inputTitle} 
-              onChange={(e) => setInputTitle(e.target.value)}
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Content</label>
-            <textarea 
-              placeholder="Content" 
-              value={inputContent}
-              onChange={(e) => setInputContent(e.target.value)}
-              rows={4}
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Deadline</label>
-            <input 
-              type="datetime-local" 
-              value={inputDeadline}
-              onChange={(e) => setInputDeadline(e.target.value)}
-            />
-          </div>
-
-          <label className="checkbox-container">
-            <input 
-              type="checkbox" 
-              checked={inputIsCompleted} 
-              onChange={(e) => setInputIsCompleted(e.target.checked)} 
-            />
-            <span>Mark as completed</span>
-          </label>
-
-          {/* Last modified and completed date  */}
-            {selectedTodo && (
-              <div className="todo-metadata">
-                <div className="metadata-item">
-                  <strong>Last modified:</strong> 
-                  <span>{new Date(selectedTodo.last_modified_at).toLocaleString()}</span>
-                </div>
-                
-                {selectedTodo.is_completed && selectedTodo.completed_at && (
-                  <div className="metadata-item">
-                    <strong>Completed on:</strong> 
-                    <span>{new Date(selectedTodo.completed_at).toLocaleString()}</span>
-                  </div>
-                )}
-              </div>
-            )}
-          {selectedTodo && selectedTodo.tags && selectedTodo.tags.length > 0 && (
-            <div className="active-tags-display">
-              <label className="section-label">Active Tags</label>
-              <div className="tags-pill-container">
-                {selectedTodo.tags.map(tag => (
-                  <span key={tag?.tag_id} className="tag-pill">
-                    {tag?.tag_name}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-<div className="form-group">
-  <details key={selectedTodo?.todo_id || 'new'} className="tags-collapsible">
-<summary className="details-summary">
-  <span className="summary-label">Assign Tags</span>
-  {selectedTagIds.length > 0 && (
-    <span className="summary-hint">
-      ({selectedTagIds.length} selected)
-    </span>
-  )}
-</summary>
-
-    <div className="tags-selection-grid">
-      {allTags.map(tag => (
-        <label key={tag.tag_id} className="tag-checkbox-label">
-          <input 
-            type="checkbox" 
-            checked={selectedTagIds.includes(tag.tag_id)}
-            onChange={(e) => {
-              if (e.target.checked) {
-                setSelectedTagIds([...selectedTagIds, tag.tag_id]);
-              } else {
-                setSelectedTagIds(selectedTagIds.filter(id => id !== tag.tag_id));
-              }
-            }}
-          />
-          <span>{tag.tag_name}</span>
-        </label>
-      ))}
-    </div>
-  </details>
-</div>
-        </div>
-          <button className="save-btn" onClick={handleAddTodo}>
-            {selectedTodo === null ? "Add task" : "Edit Todo"}
-          </button>
-          {selectedTodo && (
-            <button 
-              className="delete-btn" 
-              onClick={() => handleDeleteTodo(selectedTodo.todo_id)}
-            >
-              Delete Task
-            </button>
-          )}
-          
-          {errorMessage && <p className="error-text">{errorMessage}</p>}
-        </div>
-      </main>
+      <TodoWorkspace 
+        selectedTodo={selectedTodo}
+        inputTitle={inputTitle}
+        inputContent={inputContent}
+        inputDeadline={inputDeadline}
+        inputIsCompleted={inputIsCompleted}
+        selectedTagIds={selectedTagIds}
+        allTags={allTags}
+        errorMessage={errorMessage}
+        onTitleChange={setInputTitle}
+        onContentChange={setInputContent}
+        onDeadlineChange={setInputDeadline}
+        onIsCompletedChange={setInputIsCompleted}
+        onTagToggle={(tagId) => {
+          setSelectedTagIds(prev => 
+            prev.includes(tagId) ? prev.filter(id => id !== tagId) : [...prev, tagId]
+          );
+        }}
+        onSave={handleAddTodo}
+        onDelete={handleDeleteTodo}
+    />
     </>
   )
 }

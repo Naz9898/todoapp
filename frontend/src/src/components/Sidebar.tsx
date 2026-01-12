@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Todo, Tag, StatusFilter, TodoCreateEdit } from '../types';
+import type { Todo, Tag } from '../types';
 
 interface SidebarProps {
   todos: Todo[];
