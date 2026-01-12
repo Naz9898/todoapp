@@ -382,13 +382,22 @@ const toggleTodoCompletion = async (e: React.MouseEvent, todo: Todo) => {
                 className={`todo-card ${item.is_completed ? 'completed' : ''} ${selectedTodo?.todo_id === item.todo_id ? 'active' : ''} ${isOverdue ? 'overdue' : ''}`}
                 onClick={() => handleSelectedTodo(item)}
               >
-                {/* 1. Il testo sta a sinistra */}
                 <div className="todo-card-content">
                   <strong>{item.title}</strong>
                   <p>Expires on: {new Date(item.deadline).toLocaleString()}</p>
+                  
+                  {/* Modifica qui per usare le classi delle pillole */}
+                  {item.tags && item.tags.length > 0 && (
+                    <div className="tags-pill-container sidebar-tags">
+                      {item.tags.map(tag => (
+                        <span key={tag?.tag_id} className="tag-pill">
+                          {tag?.tag_name}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
-                {/* 2. La spunta viene spinta a destra dal flex-grow del contenuto */}
                 <div 
                   className={`todo-check ${item.is_completed ? 'checked' : ''}`}
                   onClick={(e) => toggleTodoCompletion(e, item)}
@@ -405,7 +414,7 @@ const toggleTodoCompletion = async (e: React.MouseEvent, todo: Todo) => {
       <main className="todo-workspace">
         <div className="workspace-card">
           <h2>{selectedTodo === null ? "Create new task" : "Edit task"}</h2>
-          
+          <div className="workspace-form-scroll">
           <div className="form-group">
             <label>Title</label>
             <input 
@@ -460,44 +469,51 @@ const toggleTodoCompletion = async (e: React.MouseEvent, todo: Todo) => {
                 )}
               </div>
             )}
-          {selectedTodo && selectedTagIds.length > 0 && (
-          <div className="active-tags-display">
-            <label className="section-label">Active Tags</label>
-            <div className="tags-pill-container">
-              {allTags
-                .filter(tag => selectedTagIds.includes(tag.tag_id))
-                .map(tag => (
-                  <span key={tag.tag_id} className="tag-pill">
-                    {tag.name}
+          {selectedTodo && selectedTodo.tags && selectedTodo.tags.length > 0 && (
+            <div className="active-tags-display">
+              <label className="section-label">Active Tags</label>
+              <div className="tags-pill-container">
+                {selectedTodo.tags.map(tag => (
+                  <span key={tag?.tag_id} className="tag-pill">
+                    {tag?.tag_name}
                   </span>
                 ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        <div className="form-group">
-          <label>Assign Tags</label>
-          <div className="tags-selection-grid">
-            {allTags.map(tag => (
-              <label key={tag.tag_id} className="tag-checkbox-label">
-                <input 
-                  type="checkbox" 
-                  checked={selectedTagIds.includes(tag.tag_id)}
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      setSelectedTagIds([...selectedTagIds, tag.tag_id]);
-                    } else {
-                      setSelectedTagIds(selectedTagIds.filter(id => id !== tag.tag_id));
-                    }
-                  }}
-                />
-                <span>{tag.name}</span>
-              </label>
-            ))}
-          </div>
-          {allTags.length === 0 && <p className="hint-text">Create tags in the sidebar first!</p>}
+<div className="form-group">
+  <details key={selectedTodo?.todo_id || 'new'} className="tags-collapsible">
+<summary className="details-summary">
+  <span className="summary-label">Assign Tags</span>
+  {selectedTagIds.length > 0 && (
+    <span className="summary-hint">
+      ({selectedTagIds.length} selected)
+    </span>
+  )}
+</summary>
+
+    <div className="tags-selection-grid">
+      {allTags.map(tag => (
+        <label key={tag.tag_id} className="tag-checkbox-label">
+          <input 
+            type="checkbox" 
+            checked={selectedTagIds.includes(tag.tag_id)}
+            onChange={(e) => {
+              if (e.target.checked) {
+                setSelectedTagIds([...selectedTagIds, tag.tag_id]);
+              } else {
+                setSelectedTagIds(selectedTagIds.filter(id => id !== tag.tag_id));
+              }
+            }}
+          />
+          <span>{tag.name}</span>
+        </label>
+      ))}
+    </div>
+  </details>
+</div>
         </div>
-
           <button className="save-btn" onClick={handleAddTodo}>
             {selectedTodo === null ? "Add task" : "Edit Todo"}
           </button>
