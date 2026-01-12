@@ -215,6 +215,7 @@ interface Todo{
   is_completed: boolean
   deadline: string
   completed_at: string | null
+  tags: string[] | null
 }
 
 interface TodoRequestBody {
@@ -260,7 +261,7 @@ app.post('/todo', authenticateToken, async (req: Request<{}, TodoResponseBody, T
     `;
     const result = await query(sql, [user.user_id, title, content, deadline, is_completed]);
     const row = result.rows[0];
-    const todo: Todo = {
+    let todo: Todo = {
         todo_id: row.todo_id,
         user_id: row.user_id,
         created_at: row.created_at,
@@ -269,7 +270,8 @@ app.post('/todo', authenticateToken, async (req: Request<{}, TodoResponseBody, T
         content: row.content,
         is_completed: row.is_completed, 
         deadline: row.deadline,
-        completed_at: row.completed_at || null
+        completed_at: row.completed_at || null,
+        tags: []
     }
     if (tags && tags.length > 0) {
       // Prepariamo l'inserimento multiplo
@@ -278,7 +280,14 @@ app.post('/todo', authenticateToken, async (req: Request<{}, TodoResponseBody, T
       const insertTagsQuery = `INSERT INTO todo_tags (todo_id, tag_id) VALUES ${values}`;
       await query(insertTagsQuery);
     }
+    const tagsResult = await query(`
+      SELECT tag_id, tag_name 
+      FROM tag JOIN todo_tags USING (tag_id)
+      WHERE todo_id = $1
+    `, [todo.todo_id]);
+    todo.tags = tagsResult.rows
     await query('COMMIT');
+
     res.status(201).json({
       message: "Todo created",
       todo: todo
@@ -383,11 +392,17 @@ app.put('/todo', authenticateToken, async (req: Request, res: Response) => {
       const insertTagsQuery = `INSERT INTO todo_tags (todo_id, tag_id) VALUES ${values}`;
       await query(insertTagsQuery);
     }
-
+    const tagsResult = await query(`
+      SELECT tag_id, tag_name 
+      FROM tag JOIN todo_tags USING (tag_id)
+      WHERE todo_id = $1
+    `, [todo_id]);
+    let updated_todo: Todo = result.rows[0] 
+    updated_todo.tags = tagsResult.rows
     await query('COMMIT');
     res.status(200).json({
       message: "Todo updated.",
-      todo: result.rows[0]
+      todo: updated_todo
     });
 
   } catch (error) {

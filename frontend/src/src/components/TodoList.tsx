@@ -220,8 +220,18 @@ const handleDeleteTag = async (tagId: number) => {
       if(response.ok){
         const data = await response.json();
         setErrorMessage(data.message);
-        handleSelectedTodo(data.todo)    
-        getTodos()     
+        
+        // 1. Aggiorniamo immediatamente la sidebar
+        await getTodos(); 
+        
+        // 2. Aggiorniamo il task selezionato con i dati nuovi del server
+        // Se il backend restituisce il todo aggiornato in data.todo:
+        if (data.todo) {
+          handleSelectedTodo(data.todo);
+        } else {
+          // Se il backend non restituisce il todo completo, resetta o richiedi il singolo
+          handleSelectedTodo(null); 
+        }
       }
     } catch (error: any) {
       console.error("Network error:", error);
@@ -467,18 +477,6 @@ const toggleTodoCompletion = async (e: React.MouseEvent, todo: Todo) => {
 
         <div className="form-group">
           <label>Assign Tags</label>
-          
-          {/* Mostra i nomi dei tag già assegnati in modo testuale */}
-          {selectedTagIds.length > 0 && (
-            <div className="active-tags-list">
-              <span className="hint-text">Active: </span>
-              {allTags
-                .filter(t => selectedTagIds.includes(t.tag_id))
-                .map(t => t.name)
-                .join(", ")}
-            </div>
-          )}
-
           <div className="tags-selection-grid">
             {allTags.map(tag => (
               <label key={tag.tag_id} className="tag-checkbox-label">
@@ -497,6 +495,7 @@ const toggleTodoCompletion = async (e: React.MouseEvent, todo: Todo) => {
               </label>
             ))}
           </div>
+          {allTags.length === 0 && <p className="hint-text">Create tags in the sidebar first!</p>}
         </div>
 
           <button className="save-btn" onClick={handleAddTodo}>
