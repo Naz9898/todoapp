@@ -1,32 +1,10 @@
 import React, { useState, useEffect } from 'react'
-
-interface Todo{
-  todo_id: number
-  user_id: number
-  created_at: string
-  last_modified_at: string
-  title: string
-  content: string 
-  is_completed: boolean
-  deadline: string
-  completed_at: string | null
-  tags: { tag_id: number; tag_name: string }[] | null[] | null
-}
-
-interface TodoCreateEdit{
-  todo_id: number | null
-  title: string
-  content: string
-  deadline: string
-  is_completed: boolean
-  tags: number[] | null
-}
+import type { Todo, Tag, TodoCreateEdit } from '../types';
+import Sidebar from './Sidebar';
 
 const formatDateTime = (dateString: string | null) => {
   if (!dateString) return "";
-  
   const date = new Date(dateString);
-  
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
@@ -49,7 +27,7 @@ function TodoList() {
   // Debug
   const [errorMessage, setErrorMessage] = useState<string>('') 
   // Tag
-  const [allTags, setAllTags] = useState<{tag_id: number, name: string}[]>([]);
+  const [allTags, setAllTags] = useState<{tag_id: number, tag_name: string}[]>([]);
   const [newTagName, setNewTagName] = useState('');
   const [activeTagFilter, setActiveTagFilter] = useState<number | null>(null);
   const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
@@ -60,15 +38,9 @@ function TodoList() {
     const res = await fetch('http://localhost:3000/tag', {
       headers: { 'Authorization': `Bearer ${token}` }
     });
-    const data = await res.json();
+    const data: Tag[] = await res.json();
     
-    // Se il backend manda { tag_id, tag_name }, trasformiamolo in { tag_id, name }
-    const formattedTags = data.map((t: any) => ({
-      tag_id: t.tag_id,
-      name: t.tag_name || t.name // Gestisce entrambi i casi
-    }));
-    
-    setAllTags(formattedTags);
+    setAllTags(data);
   };
 
   const handleAddTag = async () => {
@@ -302,113 +274,21 @@ const toggleTodoCompletion = async (e: React.MouseEvent, todo: Todo) => {
 };
   return (
     <>
-      {/* Left Column */}
-      <aside className="todo-sidebar">
-        <div className="sidebar-header">
-          <h2>My task list</h2>
-          <button className="add-main-btn" onClick={() => handleSelectedTodo(null)}>
-            + New task
-          </button>
-        </div>
-
-        <div className="filters-section">
-          <p className="section-label">Tags</p>
-          {/* Gestione Tag (Input sempre visibile, lista a comparsa) */}
-          <div className="tags-management">
-            <div className="tag-input-group">
-              <input 
-                type="text" 
-                placeholder="New tag..." 
-                value={newTagName}
-                onChange={(e) => setNewTagName(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleAddTag()}
-              />
-              <button onClick={handleAddTag} className="add-tag-mini-btn">Add</button>
-            </div>
-
-            <details className="tags-details">
-              <summary>Manage existing tags</summary>
-              <ul className="tag-edit-list">
-                {allTags.map(tag => (
-                  <li key={tag.tag_id}>
-                    <span>{tag.name}</span>
-                    <button onClick={() => handleDeleteTag(tag.tag_id)}>×</button>
-                  </li>
-                ))}
-              </ul>
-            </details>
-          </div>
-          <p className="section-label">Filters</p>
-          <div className="filters-row">
-            {/* Filtro Stato */}
-            <select 
-              value={statusFilter} 
-              onChange={(e) => {
-                const newFilter = e.target.value as 'all' | 'completed' | 'pending';
-                setStatusFilter(newFilter);
-                getTodos(newFilter, activeTagFilter);
-              }}
-              className="status-select"
-            >
-              <option value="all">All Status</option>
-              <option value="pending">Pending</option>
-              <option value="completed">Completed</option>
-            </select>
-
-            {/* Filtro Tag (Dropdown) */}
-            <select 
-              value={activeTagFilter || ""} 
-              onChange={(e) => {
-                const val = e.target.value ? Number(e.target.value) : null;
-                setActiveTagFilter(val);
-                getTodos(statusFilter, val); // Passa lo stato attuale e il tag nuovo
-              }}
-              className="status-select"
-            >
-              <option value="">All Tags</option>
-              {allTags.map(tag => (
-                <option key={tag.tag_id} value={tag.tag_id}>{tag.name}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-        <ul className="todo-list">
-          {todos.map((item) => {
-            const isOverdue = item.deadline && new Date(item.deadline) < new Date() && !item.is_completed;
-
-            return (
-              <li 
-                key={item.todo_id} 
-                className={`todo-card ${item.is_completed ? 'completed' : ''} ${selectedTodo?.todo_id === item.todo_id ? 'active' : ''} ${isOverdue ? 'overdue' : ''}`}
-                onClick={() => handleSelectedTodo(item)}
-              >
-                <div className="todo-card-content">
-                  <strong>{item.title}</strong>
-                  <p>Expires on: {new Date(item.deadline).toLocaleString()}</p>
-                  
-                  {/* Modifica qui per usare le classi delle pillole */}
-                  {item.tags && item.tags.length > 0 && (
-                    <div className="tags-pill-container sidebar-tags">
-                      {item.tags.map(tag => (
-                        <span key={tag?.tag_id} className="tag-pill">
-                          {tag?.tag_name}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div 
-                  className={`todo-check ${item.is_completed ? 'checked' : ''}`}
-                  onClick={(e) => toggleTodoCompletion(e, item)}
-                >
-                  {item.is_completed && '✓'}
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      </aside>
+      <Sidebar 
+        todos={todos}
+        allTags={allTags}
+        selectedTodoId={selectedTodo?.todo_id}
+        statusFilter={statusFilter}
+        activeTagFilter={activeTagFilter}
+        newTagName={newTagName}
+        onSelectTodo={handleSelectedTodo}
+        onStatusFilterChange={(s) => { setStatusFilter(s); getTodos(s, activeTagFilter); }}
+        onTagFilterChange={(t) => { setActiveTagFilter(t); getTodos(statusFilter, t); }}
+        onAddTag={handleAddTag}
+        onDeleteTag={handleDeleteTag}
+        onNewTagNameChange={setNewTagName}
+        onToggleComplete={toggleTodoCompletion}
+      />
 
       {/* Add and edit area */}
       <main className="todo-workspace">
@@ -507,7 +387,7 @@ const toggleTodoCompletion = async (e: React.MouseEvent, todo: Todo) => {
               }
             }}
           />
-          <span>{tag.name}</span>
+          <span>{tag.tag_name}</span>
         </label>
       ))}
     </div>
