@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useAuth } from '../context/AuthContext';
 
 interface UserDataTemplate {
@@ -12,7 +12,7 @@ const validateMail = (mail: string): boolean => {
 
 
 function Login() {
-  const { user, login, logout } = useAuth()
+  const { user, login } = useAuth()
   const [inputMail, setInputMail] = useState<string>('')
   const [inputPassword, setInputPassword] = useState<string>('')
   const [errorMessage, setErrorMessage] = useState<string>('')
@@ -55,15 +55,7 @@ function Login() {
       setErrorMessage("Could not connect to the server. Please check your connection.")
     }
   }
-  const handleLogout = async () => {
-    // Input Validation
-    if (user){
-      logout()
-      setErrorMessage("")
-    }
-    return
-  }
-  // JSX return
+ 
   return (
     <>
       <div className="auth-card">

@@ -23,7 +23,6 @@ html, body, #root {
 }
 
 button {
-  width: 100%;
   padding: 14px;
   background-color: #1a88c5;
   color: white;
@@ -36,6 +35,38 @@ button {
 
 button:hover {
   background-color: #156d9e;
+}
+
+h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+  color: #000;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+input {
+  padding: 12px;
+  margin-bottom: 1.2rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  font-size: 1rem;
+}
+
+input:focus, 
+textarea:focus {
+  outline: none;
+  border-color: #1a88c5;
+  background-color: #fff;
+  box-shadow: 0 0 0 4px rgba(26, 136, 197, 0.1);
 }
 
 /* HEADER */
@@ -85,18 +116,15 @@ header {
   font-size: 0.8rem;
 }
 
-/* MAIN */
+/* MAIN REGISTER AND LOGIN*/
 
 .main-content {
   flex: 1;
-  margin-top: 80px; /* Altezza Header */
-  display: flex; /* Permette alla TodoList di usare la sua struttura aside/main */
+  margin-top: 80px; 
+  display: flex; 
   overflow: hidden; 
 }
 
-
-
-/* Correzione Container per l'Header Fisso */
 .auth-container {
   flex: 1;
   display: flex;
@@ -114,72 +142,22 @@ header {
 }
 
 .auth-card {
-  flex: 0 1 400px;       /* Non farle allargare troppo */
+  flex: 0 1 400px;
   background: white;
   padding: 2.5rem;
   border-radius: 12px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
   width: 100%;
   max-width: 400px;
-  text-align: left; /* Allineamento testo a sinistra come nell'immagine */
+  text-align: left;
 }
 
-.auth-card h2 {
-  font-size: 1.8rem;
-  margin-bottom: 1.5rem;
-  font-weight: 700;
-  color: #000;
-}
-
-.auth-card label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  font-size: 0.9rem;
-  color: #333;
-}
-
-.auth-card input {
+.auth-card input, .auth-card button {
   width: 100%;
-  padding: 12px;
-  margin-bottom: 1.2rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background-color: #f8fafc;
-  font-size: 1rem;
-}
-
-.auth-card button {
-  width: 100%;
-  padding: 14px;
-  background-color: #1a88c5; /* Il blu della tua immagine */
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 1rem;
-  transition: background 0.3s;
-}
-
-.auth-card button:hover {
-  background-color: #156d9e;
-}
-
-.auth-footer {
-  margin-top: 1.5rem;
-  text-align: center;
-  font-size: 0.85rem;
-  color: #64748b;
-}
-
-.auth-footer span {
-  color: #1a88c5;
-  cursor: pointer;
-  text-decoration: underline;
 }
 
 
-/* Container principale della dashboard */
+/* SIDEBAR */
 .dashboard {
   margin-top: 100px;
   display: flex;
@@ -187,8 +165,6 @@ header {
   width: 100%;
   overflow: hidden; /* Impedisce lo scroll dell'intera pagina */
 }
-
-/* --- DASHBOARD (Dentro TodoList.tsx) --- */
 
 .todo-sidebar {
   display: flex;
