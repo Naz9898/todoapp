@@ -79,8 +79,8 @@ function TodoList() {
       });
 
       if (response.ok) {
-        setNewTagName(""); // Svuota l'input
-        fetchTags();      // Aggiorna la lista nella sidebar e nel workspace
+        setNewTagName(""); 
+        fetchTags();     
       }
     } catch (error) {
       console.error("Error adding tag:", error);

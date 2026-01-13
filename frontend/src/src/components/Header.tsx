@@ -6,18 +6,16 @@ const Header = () => {
   const { user, logout } = useAuth();
 
   return (
-    <header className="main-nav">
-      <div className="nav-left">
-        <img src={logo} alt="NazTodo Logo" className="nav-logo" />
-      </div>
-      
+    <header>
+      <img src={logo} alt="NazTodo Logo" className="header-logo" />
+
       {user && (
-        <div className="user-nav-card">
-          <div className="user-info-text">
-            <span className="user-name">{user.username}</span>
-            <span className="user-email">{user.email}</span>
+        <div className="header-user">
+          <div className="header-user-text">
+            <span className="header-user-text-name">{user.username}</span>
+            <span className="header-user-text-email">{user.email}</span>
           </div>
-          <button className="logout-btn-small" onClick={logout}>
+          <button className="header-user-button" onClick={logout}>
             Logout
           </button>
         </div>

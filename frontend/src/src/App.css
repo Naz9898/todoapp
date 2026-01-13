@@ -1,41 +1,91 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
+/* GLOBAL */
 * {
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
   font-family: 'Inter', -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
-body {
-  background-color: #f8fafc;
-  color: #1e293b;
-}
-
 :root {
   --primary-blue: #1a88c5;
-  --text-dark: #1a1a1a;
-  --bg-light: #f0f2f5;
-  --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Applichiamo il font a tutti gli input e bottoni (che di solito non lo ereditano) */
-input, button, textarea, select {
-  font-family: var(--font-main);
-}
-
-/* Reset e Layout Base */
 html, body, #root {
   height: 100%;
   margin: 0;
 }
 
-.app-wrapper {
+#root {
   display: flex;
   flex-direction: column;
   height: 100vh;
 }
+
+button {
+  width: 100%;
+  padding: 14px;
+  background-color: #1a88c5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background-color: #156d9e;
+}
+
+/* HEADER */
+header {
+  height: 80px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 40px;
+  border-bottom: 1px solid #e2e8f0;
+  position: fixed;
+  width: 100%;
+}
+
+.header-logo {
+  height: 50px;
+}
+
+.header-user {
+  display: flex;
+  gap: 15px;
+  background-color: #f8fafc;
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.header-user-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.header-user-text-name {
+  font-weight: 700; 
+  color: #1a1a1a;
+}
+
+.header-user-text-email {
+  font-size: 0.75rem; 
+  font-weight: 400;
+  color: #64748b;
+}
+
+.header-user-button {
+  padding: 6px 12px;
+  border-radius: 5px;
+  font-size: 0.8rem;
+}
+
+/* MAIN */
 
 .main-content {
   flex: 1;
@@ -44,35 +94,7 @@ html, body, #root {
   overflow: hidden; 
 }
 
-/* Layout Generale */
-.app-wrapper {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
 
-/* Header Pulito */
-.main-nav {
-  height: 80px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 40px;
-  background-color: white; /* Colore di sfondo dell'header */
-  border-bottom: 1px solid #e2e8f0;
-  position: fixed;
-  top: 0;
-  width: 100%;
-  box-sizing: border-box;
-  z-index: 1000;
-}
-
-.nav-logo {
-  height: 50px;
-  width: auto;
-  /* Rende trasparente lo sfondo bianco dell'immagine originale */
-  display: block;
-}
 
 /* Correzione Container per l'Header Fisso */
 .auth-container {
@@ -154,51 +176,6 @@ html, body, #root {
   color: #1a88c5;
   cursor: pointer;
   text-decoration: underline;
-}
-
-.user-nav-card {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  background-color: #f8fafc;
-  padding: 8px 16px;
-  border-radius: 10px; /* Bordi meno rotondi */
-  border: 1px solid #e2e8f0;
-}
-
-/* Colonna Testo (Username sopra, Email sotto) */
-.user-info-text {
-  display: flex;
-  flex-direction: column; /* Mette gli elementi in verticale */
-  align-items: flex-start;
-  line-height: 1.2;
-}
-
-.user-name {
-  font-size: 0.9rem;
-  font-weight: 700; /* Username principale e grassetto */
-  color: #1a1a1a;
-}
-
-.user-email {
-  font-size: 0.75rem; /* Email più piccola */
-  font-weight: 400;
-  color: #64748b; /* Meno evidente (grigio) */
-}
-
-.logout-btn-small {
-  background-color: #1a88c5;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 5px;
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.logout-btn-small:hover {
-  background-color: #e53e3e; /* Diventa rosso al passaggio per indicare l'uscita */
 }
 
 

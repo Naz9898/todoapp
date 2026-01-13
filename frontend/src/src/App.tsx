@@ -9,7 +9,7 @@ function App() {
   const { user } = useAuth();
 
   return (
-    <div className="app-wrapper">
+    <>
       <Header />
       <div className="main-content">
         {!user ? (
@@ -21,7 +21,7 @@ function App() {
           <TodoList /> 
         )}
       </div>
-    </div>
+    </>
   );
 }
 
