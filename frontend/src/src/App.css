@@ -190,6 +190,15 @@ header {
   transition: all 0.2s;
 }
 
+.todo-sidebar input[type="text"] {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: #1e293b;
+  background-color: #f8fafc; /* Grigio chiarissimo come le altre card */
+  border: 1px solid var(--border-color);
+}
+
 .todo-sidebar h1, 
 .todo-sidebar h2 {
   margin-bottom: 20px; /* Crea spazio sotto il titolo "I miei Todo" */
@@ -263,22 +272,18 @@ header {
 .tags-details {
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background: var(--bg-light);
+  background-color: #f8fafc; /* Uniformato alla barra sopra */ 
   margin-top: 10px;
   overflow: hidden;
 }
 
 .tags-details summary {
-  padding: 12px;
-  font-size: 0.85rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
   font-weight: 600;
-  color: #475569;
-  cursor: pointer;
-  background: #fff;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  appearance: auto; 
+  color: #475569; /* Grigio scuro coerente con le label */
+  background-color: #f8fafc;
+  padding: 12px;
 }
 
 .tag-edit-list {
@@ -288,7 +293,6 @@ header {
   max-height: 200px;
   overflow-y: auto;
   border-top: 1px solid var(--border-color);
-  background: white;
 }
 
 .tag-edit-list li {
