@@ -110,7 +110,6 @@ router.get('/', authenticateToken, async (req: Request, res: Response) => {
 
     const params: any[] = [user.user_id];
 
-    // Filtro Stato (Pendente/Completato)
     if (status === 'completed') {
       sql += ' AND t.is_completed = true';
     } else if (status === 'pending') {
@@ -118,12 +117,8 @@ router.get('/', authenticateToken, async (req: Request, res: Response) => {
     }
 
     sql += ' GROUP BY t.todo_id';
-
-    // FILTRO PER TAG (Utilizziamo HAVING perché tags è un'aggregazione)
-    // Oppure, più semplicemente, filtriamo i task che hanno quell'ID nella tabella di giunzione
     if (tag_id) {
       params.push(tag_id);
-      // Cerchiamo se nell'aggregazione di ID esiste quello cercato
       sql += ` HAVING $${params.length} = ANY(array_agg(tg.tag_id))`;
     }
 

@@ -24,13 +24,13 @@ router.post('/register', async (req: Request, res: Response) => {
     const { username, email, password } = req.body;
     
     if (!username || username.length === 0) {
-        return res.status(400).json({ message: "400 Bad Request: Username cannot be empty" });
+        return res.status(400).json({ message: "Username cannot be empty" });
     }
     if (!validateMail(email)) {
-        return res.status(400).json({ message: "400 Bad Request: Invalid email format." });
+        return res.status(400).json({ message: "Invalid email format." });
     }
     if (!validatePassword(password)) {
-        return res.status(400).json({ message: "400 Bad Request: Password too weak." });
+        return res.status(400).json({ message: "Password too weak." });
     }
 
     try {
@@ -51,19 +51,19 @@ router.post('/login', async (req: Request, res: Response) => {
     const { email, password } = req.body;
     
     if (!email || !password || !validateMail(email)) {
-        return res.status(400).json({ message: "400 Bad Request: Invalid email or password." });
+        return res.status(400).json({ message: "Invalid email or password." });
     }
 
     try {
         const result = await query('SELECT * FROM users WHERE email = $1', [email]);
         if (result.rows.length === 0) {
-            return res.status(401).json({ message: "400 Bad Request: Invalid email or password." });
+            return res.status(401).json({ message: "Invalid email or password." });
         }
 
         const user_row = result.rows[0];
         const isMatch = await bcrypt.compare(password, user_row.password_hash);
         if (!isMatch) {
-            return res.status(400).json({ message: "400 Bad Request: Invalid email or password." });
+            return res.status(400).json({ message: "Invalid email or password." });
         }
 
         const user = { user_id: user_row.user_id, username: user_row.username, email: user_row.email };
@@ -81,7 +81,7 @@ router.get('/me', authenticateToken, async (req, res) => {
   try{
         const result = await query('SELECT * FROM users WHERE email = $1', [user.email]);
         if (result.rows.length === 0) {
-            return res.status(401).json({ message: "400 Bad Request: Invalid token." });
+            return res.status(401).json({ message: "Invalid token." });
         }
         res.status(200).json({
         message: "Valid session",

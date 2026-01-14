@@ -6,7 +6,6 @@ const router = Router();
 
 
 // Tag
-// Recupera tutti i tag dell'utente
 router.get('/', authenticateToken, async (req, res) => {
   const user = (req as any).user;
   try {
