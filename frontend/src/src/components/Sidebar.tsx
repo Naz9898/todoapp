@@ -49,7 +49,7 @@ const Sidebar = ({
               {allTags.map(tag => (
                 <li key={tag.tag_id}>
                   <span>{tag.tag_name}</span> 
-                  <button onClick={() => onDeleteTag(tag.tag_id)}>×</button>
+                  <button className="delete-tag-btn"  onClick={() => onDeleteTag(tag.tag_id)}>×</button>
                 </li>
               ))}
             </ul>

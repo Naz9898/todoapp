@@ -268,26 +268,39 @@ header {
 
 .tag-input-group {
   display: flex;
-  gap: 5px;
+  gap: 8px;
   margin-bottom: 10px;
+  align-items: center; /* Centra verticalmente gli elementi */
 }
 
 .tag-input-group input {
   flex: 1;
+  margin-bottom: 0; /* Rimuove il margine di default degli input */
+  height: 38px;    /* Stessa altezza del bottone */
   padding: 8px 12px;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  font-size: 0.85rem;
 }
 
 .add-tag-mini-btn {
   background-color: var(--primary-blue);
   color: white;
   border: none;
-  padding: 0 12px;
+  /* Riduciamo il padding per non farlo esplodere */
+  padding: 0 16px; 
+  height: 38px; /* Altezza tipica per combaciare con l'input */
   border-radius: 6px;
   font-weight: 600;
+  font-size: 0.85rem;
   cursor: pointer;
+  transition: background 0.2s;
+  
+  /* Reset fondamentale per annullare lo stile globale */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-tag-mini-btn:hover {
+  background-color: #156d9e;
 }
 
 .tags-details {
@@ -329,15 +342,32 @@ header {
 }
 
 .delete-tag-btn {
-  background: none;
+  /* RESET degli stili globali */
+  padding: 0 !important; 
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  
+  /* STILE */
+  background-color: #f1f5f9; /* Grigio chiaro di base */
   border: none;
-  color: #cbd5e1;
-  font-size: 1.2rem;
+  color: #64748b;
+  font-size: 1.1rem;
+  border-radius: 6px;
   cursor: pointer;
+  
+  /* CENTRATURA della X */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   line-height: 1;
+  transition: all 0.2s;
 }
 
-.delete-tag-btn:hover { color: #ef4444; }
+.delete-tag-btn:hover { 
+  background-color: #fee2e2; /* Sfondo rossiccio al passaggio */
+  color: #ef4444;            /* X rossa */
+}
 
 .todo-list {
   flex: 1;
