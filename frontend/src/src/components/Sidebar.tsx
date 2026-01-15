@@ -1,11 +1,7 @@
 import React from 'react';
 import type { Todo, Tag } from '../types';
 
-const Sidebar = ({
-  todos, allTags, selectedTodoId, statusFilter, activeTagFilter,
-  newTagName, onSelectTodo, onStatusFilterChange, onTagFilterChange,
-  onAddTag, onDeleteTag, onNewTagNameChange, onToggleComplete
-}:{
+interface SidebarProps {
   todos: Todo[];
   allTags: Tag[];
   selectedTodoId?: number;
@@ -19,7 +15,13 @@ const Sidebar = ({
   onDeleteTag: (id: number) => void;
   onNewTagNameChange: (name: string) => void;
   onToggleComplete: (e: React.MouseEvent, todo: Todo) => void;
-}) => {
+}
+
+const Sidebar = ({
+  todos, allTags, selectedTodoId, statusFilter, activeTagFilter,
+  newTagName, onSelectTodo, onStatusFilterChange, onTagFilterChange,
+  onAddTag, onDeleteTag, onNewTagNameChange, onToggleComplete
+}: SidebarProps) => {
   return (
     <aside className="todo-sidebar">
       <div className="sidebar-header">
@@ -30,33 +32,39 @@ const Sidebar = ({
       </div>
 
       <div className="filters-section">
-        <p className="section-label">Tags</p>
-        <div className="tags-management">
-          <div className="tag-input-group">
-            <input 
-              type="text" 
-              placeholder="New tag..." 
-              value={newTagName}
-              onChange={(e) => onNewTagNameChange(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && onAddTag()}
-            />
-            <button onClick={onAddTag} className="add-tag-mini-btn">Add</button>
+        {/* TAG SECTION */}
+        <details className="main-tags-collapsible" open>
+          <summary className="section-label" style={{ cursor: 'pointer', outline: 'none' }}>
+            Tags management
+          </summary>
+          
+          <div className="tags-management" style={{ marginTop: '10px' }}>
+            <div className="tag-input-group">
+              <input 
+                type="text" 
+                placeholder="New tag..." 
+                value={newTagName}
+                onChange={(e) => onNewTagNameChange(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && onAddTag()}
+              />
+              <button onClick={onAddTag} className="add-tag-mini-btn">Add</button>
+            </div>
+
+            <details className="tags-details">
+              <summary>List tags</summary>
+              <ul className="tag-edit-list">
+                {allTags.map(tag => (
+                  <li key={tag.tag_id}>
+                    <span>{tag.tag_name}</span> 
+                    <button className="delete-tag-btn" onClick={() => onDeleteTag(tag.tag_id)}>×</button>
+                  </li>
+                ))}
+              </ul>
+            </details>
           </div>
+        </details>
 
-          <details className="tags-details">
-            <summary>Manage existing tags</summary>
-            <ul className="tag-edit-list">
-              {allTags.map(tag => (
-                <li key={tag.tag_id}>
-                  <span>{tag.tag_name}</span> 
-                  <button className="delete-tag-btn"  onClick={() => onDeleteTag(tag.tag_id)}>×</button>
-                </li>
-              ))}
-            </ul>
-          </details>
-        </div>
-
-        <p className="section-label">Filters</p>
+        <p className="section-label" style={{ marginTop: '20px' }}>Filters</p>
         <div className="filters-row">
           <select 
             value={statusFilter} 

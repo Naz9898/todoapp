@@ -220,6 +220,43 @@ header {
 }
 
 /* Nuova sezione Filtri */
+/* --- FIX FRECCIA TAGS SIDEBAR --- */
+
+/* Rimuoviamo il marker di default su tutti i browser */
+.main-tags-collapsible summary::-webkit-details-marker {
+  display: none;
+}
+.main-tags-collapsible summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+/* Creiamo la freccia personalizzata */
+.main-tags-collapsible summary::before {
+  content: '';
+  width: 0; 
+  height: 0; 
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 6px solid #64748b; /* Colore grigio come le tue label */
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+
+/* Ruota la freccia quando il menu è aperto */
+.main-tags-collapsible[open] summary::before {
+  transform: rotate(90deg);
+}
+
+/* Stile per rendere il testo TAGS cliccabile e carino */
+.main-tags-collapsible .section-label {
+  margin-bottom: 0; /* Rimuove il margine per allinearlo alla freccia */
+  user-select: none;
+}
+
 .filters-section {
   padding: 10px 20px;
   background-color: #fff;
@@ -324,6 +361,12 @@ header {
 .delete-tag-btn:hover { 
   background-color: #fee2e2;
   color: #ef4444;
+}
+
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .todo-list {
