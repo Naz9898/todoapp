@@ -47,7 +47,7 @@ function Register() {
   const handleRegister = async () => {
     // Input Validation
     if (inputUsername.length === 0){
-      setErrorMessage("Invaliusername format. Cannot be empty.")
+      setErrorMessage("Invalid username format. Cannot be empty.")
       return
     }
     if (!validateMail(inputMail)){
