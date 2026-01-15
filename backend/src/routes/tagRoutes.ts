@@ -5,7 +5,7 @@ import { authenticateToken } from '../middleware/auth.js';
 const router = Router();
 
 
-// Tag
+
 router.get('/', authenticateToken, async (req, res) => {
   const user = (req as any).user;
   try {
@@ -15,22 +15,15 @@ router.get('/', authenticateToken, async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(500).json({ error: "Errore nel caricamento tag" });
+    res.status(500).json({ error: "Error loading tag" });
   }
 });
 
-// Crea un nuovo tag
 router.post('/', authenticateToken, async (req, res) => {
-  // 1. Il nome del tag arriva dal frontend (body)
   const { tag_name } = req.body;
-  
-  // 2. L'utente arriva dal middleware di autenticazione (req.user)
-  // Usiamo il cast (req as any) se TypeScript si lamenta
   const user = (req as any).user;
-
-  // Controllo di sicurezza
   if (!tag_name) {
-    return res.status(400).json({ error: "Il nome del tag è obbligatorio" });
+    return res.status(400).json({ error: "Tag name is missing" });
   }
 
   try {
@@ -40,18 +33,16 @@ router.post('/', authenticateToken, async (req, res) => {
     );
     res.json(result.rows[0]);
   } catch (err) {
-    console.error(err); // Questo ti permette di vedere l'errore vero nel terminale
+    console.error(err); 
     res.status(500).json({ error: "Errore database (forse tag duplicato?)" });
   }
 });
 
-// Elimina un tag (grazie a ON DELETE CASCADE eliminerà anche i collegamenti)
 router.delete('/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
   const user = (req as any).user;
 
   try {
-    // Verifichiamo che il tag appartenga all'utente prima di eliminarlo
     const result = await query(
       'DELETE FROM tag WHERE tag_id = $1 AND user_id = $2 RETURNING *',
       [id, user.user_id]
