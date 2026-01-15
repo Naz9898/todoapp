@@ -40,7 +40,7 @@ router.post('/register', async (req: Request, res: Response) => {
         res.status(201).json({ message: "Registration completed" });
     } catch (error: any) {
         if (error.code === '23505') {
-            return res.status(409).json({ message: "400 Conflict Error: Email already registered." });
+            return res.status(409).json({ message: "Email already registered." });
         }
         res.status(500).json({ message: "Internal server error." });
     }
