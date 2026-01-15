@@ -82,7 +82,7 @@ const TodoWorkspace = ({
             </div>
           )}
 
-          {/* Tag Attivi (Pillole) */}
+          {/* Show active tags */}
           {selectedTodo && selectedTodo.tags && selectedTodo.tags.length > 0 && (
             <div className="active-tags-display">
               <label className="section-label">Active Tags</label>
@@ -96,7 +96,7 @@ const TodoWorkspace = ({
             </div>
           )}
 
-          {/* Selezione Tag */}
+          {/* Assign tags */}
           <div className="form-group">
             <details key={selectedTodo?.todo_id || 'new'} className="tags-collapsible">
               <summary className="details-summary">
